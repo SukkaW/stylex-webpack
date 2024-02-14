@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2018",
+    "target": "es2020",
     "module": "commonjs",
     "resolveJsonModule": true,
     "declaration": true,
@@ -10,5 +10,5 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true
   },
-  "include": ["src/**/*", "rollup.config.ts"]
+  "include": ["src/**/*", "rollup.config.ts", "test/**/*"]
 }
