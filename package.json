@@ -37,8 +37,7 @@
     "@babel/plugin-syntax-jsx": "^7.23.3",
     "@babel/plugin-syntax-typescript": "^7.23.3",
     "@stylexjs/babel-plugin": "^0.5.1",
-    "loader-utils": "^3.2.1",
-    "webpack-sources": "^3.2.3"
+    "loader-utils": "^3.2.1"
   },
   "devDependencies": {
     "@eslint-sukka/node": "^5.1.0",
