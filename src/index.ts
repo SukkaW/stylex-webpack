@@ -1,8 +1,10 @@
-import { NormalModule } from 'webpack';
+import { NormalModule, Compilation } from 'webpack';
 import { createStyleXWebpackPlugin } from './create-webpack-plugin';
 
 const PLUGIN_NAME = 'stylex';
 
-const StyleXWebpackPlugin = createStyleXWebpackPlugin({
-  NormalModule
+export const StyleXWebpackPlugin = createStyleXWebpackPlugin({
+  pluginName: PLUGIN_NAME,
+  NormalModule,
+  Compilation
 });

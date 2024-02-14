@@ -2,14 +2,13 @@
   "compilerOptions": {
     "target": "es2018",
     "module": "commonjs",
-    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
     "declaration": true,
     "outDir": "./dist",
-    "strict": true,
+    "isolatedModules": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true
+    "strict": true
   },
   "include": ["src/**/*", "rollup.config.ts"]
 }

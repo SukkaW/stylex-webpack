@@ -2,6 +2,14 @@
   "name": "stylex-webpack",
   "version": "0.1.0",
   "description": "The another Webpack Plugin for Facebook's StyleX",
+  "homepage": "https://github.com/SukkaW/style9-webpack#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SukkaW/stylex-webpack.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SukkaW/style9-webpack/issues"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -12,10 +20,6 @@
     "build": "rollup -c rollup.config.ts --configPlugin swc3 --bundleConfigAsCjs",
     "prepublishOnly": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/SukkaW/stylex-webpack.git"
   },
   "keywords": [
     "css",
@@ -28,13 +32,6 @@
   ],
   "author": "Sukka <https://skk.moe>",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/SukkaW/style9-webpack/issues"
-  },
-  "homepage": "https://github.com/SukkaW/style9-webpack#readme",
-  "peerDependencies": {
-    "@stylexjs/stylex": "*"
-  },
   "dependencies": {
     "@babel/core": "^7.23.9",
     "@babel/plugin-syntax-jsx": "^7.23.3",
@@ -44,11 +41,11 @@
     "webpack-sources": "^3.2.3"
   },
   "devDependencies": {
+    "@eslint-sukka/node": "^5.1.0",
     "@eslint-sukka/ts": "^5.1.0",
     "@swc/core": "^1.4.1",
     "@types/babel__core": "^7.20.5",
     "@types/loader-utils": "^2.0.6",
-    "@types/webpack-sources": "^3.2.3",
     "eslint": "^8.56.0",
     "eslint-config-sukka": "^5.1.0",
     "eslint-formatter-sukka": "^5.1.0",
@@ -59,5 +56,8 @@
     "rollup-plugin-swc3": "^0.11.0",
     "typescript": "^5.3.3",
     "webpack": "^5.90.1"
+  },
+  "peerDependencies": {
+    "@stylexjs/stylex": "*"
   }
 }
