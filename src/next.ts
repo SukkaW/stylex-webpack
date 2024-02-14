@@ -3,9 +3,8 @@ import { warn } from 'next/dist/build/output/log';
 
 import type { NextConfig, WebpackConfigContext } from 'next/dist/server/config-shared';
 
-import { StyleXPlugin, type StyleXPluginOption } from '.';
+import { StyleXPlugin, type StyleXPluginOption } from './index';
 import type webpack from 'webpack';
-import type { RuleSetRule } from 'webpack';
 import { VIRTUAL_CSS_PATTERN } from './constants';
 
 /** Next.js' precompilation add "__esModule: true", but doesn't add an actual default exports */
@@ -54,7 +53,7 @@ function getStyleXVirtualCssLoader(options: WebpackConfigContext, MiniCssExtract
   return loaders;
 }
 
-export = (pluginOptions: StyleXPluginOption = {}) => (nextConfig: NextConfig = {}) => {
+export = (pluginOptions?: StyleXPluginOption) => (nextConfig: NextConfig = {}): NextConfig => {
   return {
     ...nextConfig,
     webpack(config: any, ctx: WebpackConfigContext) {
@@ -126,7 +125,13 @@ export = (pluginOptions: StyleXPluginOption = {}) => (nextConfig: NextConfig = {
         );
       }
 
-      config.plugins.push(new StyleXPlugin(pluginOptions));
+      config.plugins.push(new StyleXPlugin({
+        ...pluginOptions,
+        stylexOption: {
+          ...pluginOptions?.stylexOption,
+          dev: ctx.dev
+        }
+      }));
 
       return config;
     }

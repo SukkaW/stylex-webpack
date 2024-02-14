@@ -31,11 +31,7 @@ export interface StyleXPluginOption {
   /**
    * Enable stylex's unstable_moduleResolution and specify rootDir
    */
-  rootDir?: string,
-  /**
-   * Supplement custom MiniCssExtractPlugin loaderpath
-   */
-  miniCssExtractPluginLoader?: string
+  rootDir?: string
 }
 
 const getStyleXRules = (stylexRules: Map<string, readonly StyleXRule[]>, useCSSLayers: boolean) => {
@@ -67,18 +63,19 @@ export class StyleXPlugin {
     appendTo = (filename) => filename.endsWith('stylex.css'),
     stylexImports = ['stylex', '@stylexjs/stylex'],
     useCSSLayers = false,
-    stylexOption = {
+    stylexOption = {}
+  }: StyleXPluginOption = {}) {
+    this.appendTo = appendTo;
+    this.useCSSLayers = useCSSLayers;
+    this.stylexOption = {
       dev: process.env.NODE_ENV === 'development',
       useRemForFontSize: true,
       runtimeInjection: false,
       genConditionalClasses: true,
       treeshakeCompensation: true,
-      importSources: stylexImports
-    }
-  }: StyleXPluginOption = {}) {
-    this.appendTo = appendTo;
-    this.useCSSLayers = useCSSLayers;
-    this.stylexOption = stylexOption;
+      importSources: stylexImports,
+      ...stylexOption
+    };
     this.stylexImports = stylexImports;
   }
 
