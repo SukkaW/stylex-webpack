@@ -3,7 +3,7 @@ import { transformAsync as babelTransformAsync } from '@babel/core';
 import stylexBabelPlugin from '@stylexjs/babel-plugin';
 import type { Options as StyleXOptions } from '@stylexjs/babel-plugin';
 import { stringifyRequest } from './lib/stringify-request';
-import { StyleXWebpackContextKey, VIRTUAL_CSS_PATH, isSupplementedLoaderContext } from './constants';
+import { VIRTUAL_CSS_PATH, isSupplementedLoaderContext } from './constants';
 
 const PLUGIN_NAME = 'stylex';
 
@@ -64,7 +64,7 @@ export default async function stylexLoader(this: webpack.LoaderContext<StyleXLoa
     // this.stylexRules[filename] = metadata.stylex;
     logger?.debug(`Read stylex styles from ${this.resourcePath}:`, metadata.stylex);
 
-    this[StyleXWebpackContextKey]?.registerStyleXRules(
+    this.StyleXWebpackContextKey.registerStyleXRules(
       this.resourcePath,
       metadata.stylex as any
     );

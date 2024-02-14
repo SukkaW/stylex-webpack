@@ -3,8 +3,8 @@ import stylexBabelPlugin from '@stylexjs/babel-plugin';
 import type { Rule as StyleXRule, Options as StyleXOptions } from '@stylexjs/babel-plugin';
 import path from 'path';
 import type { StyleXLoaderOptions } from './stylex-loader';
-import { PLUGIN_NAME, VIRTUAL_CSS_PATH, VIRTUAL_CSS_PATTERN } from './constants';
-import { StyleXWebpackContextKey, type SupplementedLoaderContext } from './constants';
+import { OPTIMIZE_CHUNKS_STAGE_ADVANCED, PLUGIN_NAME, VIRTUAL_CSS_PATH, VIRTUAL_CSS_PATTERN } from './constants';
+import type { SupplementedLoaderContext } from './constants';
 
 const stylexLoaderPath = require.resolve('./stylex-loader');
 
@@ -55,17 +55,14 @@ export class StyleXPlugin {
   stylexRules = new Map<string, readonly StyleXRule[]>();
   readonly stylexImports: string[] = [];
 
-  appendTo: (assetPath: string) => boolean;
   useCSSLayers: boolean;
   stylexOption: Partial<StyleXOptions>;
 
   constructor({
-    appendTo = (filename) => filename.endsWith('stylex.css'),
     stylexImports = ['stylex', '@stylexjs/stylex'],
     useCSSLayers = false,
     stylexOption = {}
   }: StyleXPluginOption = {}) {
-    this.appendTo = appendTo;
     this.useCSSLayers = useCSSLayers;
     this.stylexOption = {
       dev: process.env.NODE_ENV === 'development',
@@ -89,16 +86,6 @@ export class StyleXPlugin {
         ].join(' ')
       );
     }
-
-    compiler.options.optimization.splitChunks.cacheGroups ??= {};
-    compiler.options.optimization.splitChunks.cacheGroups.stylex = {
-      name: 'stylex',
-      // Rspack does not support functions in test due performance concerns
-      // https://github.com/web-infra-dev/rspack/issues/3425#issuecomment-1577890202
-      test: VIRTUAL_CSS_PATTERN,
-      chunks: 'all',
-      enforce: true
-    };
 
     // const IS_RSPACK = Object.prototype.hasOwnProperty.call(compiler.webpack, 'rspackVersion');
 
@@ -134,7 +121,7 @@ export class StyleXPlugin {
             // TypeScript modules
             || /\.tsx?/.test(extname)
           ) {
-            (loaderContext as SupplementedLoaderContext)[StyleXWebpackContextKey] = {
+            (loaderContext as SupplementedLoaderContext).StyleXWebpackContextKey = {
               registerStyleXRules: (resourcePath, stylexRules) => {
                 this.stylexRules.set(resourcePath, stylexRules);
               }
@@ -156,13 +143,54 @@ export class StyleXPlugin {
         }
       );
 
+      // Create a "stylex" chunk to hold all collected virtual stylex css
+      // This eliminates the need for manually specify splitChunks.cacheGroups.stylex
+      compilation.hooks.optimizeChunks.tap({
+        name: PLUGIN_NAME,
+        stage: OPTIMIZE_CHUNKS_STAGE_ADVANCED
+      },
+      () => {
+        const stylexChunk = compilation.namedChunks.get('stylex')
+          || compilation.addChunk('stylex');
+
+        const matchingChunks = new Set<webpack.Chunk>();
+        let moduleIndex = 0;
+
+        for (const module of compilation.modules) {
+          const moduleName = module.nameForCondition();
+          if (
+            module.type === 'css/mini-extract'
+            && moduleName
+            && VIRTUAL_CSS_PATTERN.test(moduleName)
+          ) {
+            const moduleChunks = compilation.chunkGraph.getModuleChunksIterable(module);
+
+            for (const chunk of moduleChunks) {
+              compilation.chunkGraph.disconnectChunkAndModule(chunk, module);
+
+              for (const group of chunk.groupsIterable) {
+                group.setModulePostOrderIndex(module, moduleIndex++);
+              }
+
+              matchingChunks.add(chunk);
+            }
+
+            compilation.chunkGraph.connectChunkAndModule(stylexChunk, module);
+          }
+        }
+
+        for (const chunk of matchingChunks) {
+          chunk.split(stylexChunk);
+        }
+      });
+
       compilation.hooks.processAssets.tap(
         {
           name: PLUGIN_NAME,
           stage: Compilation.PROCESS_ASSETS_STAGE_PRE_PROCESS
         },
         (assets) => {
-          const cssFileName = Object.keys(assets).find(this.appendTo);
+          const cssFileName = Object.keys(assets).find((filename) => filename.endsWith('stylex.css'));
           if (cssFileName) {
             const cssAsset = assets[cssFileName];
             const stylexCSS = getStyleXRules(this.stylexRules, this.useCSSLayers);

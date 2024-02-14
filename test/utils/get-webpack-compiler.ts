@@ -64,14 +64,14 @@ export default (fixture: string, pluginOption?: StyleXPluginOption, config: webp
           use: [
             useSwcLoader(true)
           ]
+        },
+        {
+          test: /\.css$/i,
+          use: [
+            MiniCssExtractPlugin.loader,
+            'css-loader'
+          ]
         }
-        // {
-        //   test: /\.css$/i,
-        //   use: [
-        //     MiniCssExtractPlugin.loader,
-        //     'css-loader'
-        //   ]
-        // }
         // {
         //   test: /\.(png|jpg|gif|svg|eot|ttf|woff|woff2)$/i,
         //   resourceQuery: /^(?!.*\?ignore-asset-modules).*$/,
@@ -100,12 +100,12 @@ export default (fixture: string, pluginOption?: StyleXPluginOption, config: webp
     },
     externals: externalModules,
     plugins: [
-      new StyleXPlugin(pluginOption),
       new MiniCssExtractPlugin({
-        filename: 'static/css/[name].css',
-        chunkFilename: 'static/css/[name].css',
+        filename: '[name].css',
+        chunkFilename: '[name].css',
         ignoreOrder: true
-      })
+      }),
+      new StyleXPlugin(pluginOption)
     ],
     ...config
   };
