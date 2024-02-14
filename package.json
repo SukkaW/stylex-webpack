@@ -18,10 +18,11 @@
   ],
   "scripts": {
     "build": "rollup -c rollup.config.ts --configPlugin swc3 --bundleConfigAsCjs",
-    "prepublishOnly": "npm run build",
+    "prerelease": "npm run build",
     "lint": "eslint --format=sukka .",
     "test": "mocha --require @swc-node/register test/index.ts",
-    "test:update": "mocha --update --require @swc-node/register test/index.ts"
+    "test:update": "mocha --update --require @swc-node/register test/index.ts",
+    "release": "bumpp -r --all --commit=\"release: %s\" --tag=\"%s\""
   },
   "keywords": [
     "css",
@@ -50,6 +51,7 @@
     "@types/chai": "^4.3.11",
     "@types/loader-utils": "^2.0.6",
     "@types/mocha": "^10.0.6",
+    "bumpp": "^9.3.0",
     "chai": "^4.4.1",
     "css-loader": "^6.10.0",
     "eslint": "^8.56.0",
