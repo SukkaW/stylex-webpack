@@ -21,7 +21,7 @@ export default defineConfig([{
     swc(),
     copy({
       targets: [
-        { src: 'src/stylex.virtual.css', dest: 'dist' }
+        { src: 'src/stylex.virtualcss', dest: 'dist' }
       ]
     })
   ],
@@ -39,9 +39,15 @@ export default defineConfig([{
     file: 'dist/stylex-loader.js',
     format: 'commonjs'
   },
-  plugins: [
-    swc()
-  ],
+  plugins: [swc()],
+  external
+}, {
+  input: 'src/virtual-loader.ts',
+  output: {
+    file: 'dist/virtual-loader.js',
+    format: 'commonjs'
+  },
+  plugins: [swc()],
   external
 }, {
   input: 'src/next.ts',

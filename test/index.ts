@@ -17,10 +17,10 @@ chai.use(jestSnapshotPlugin());
 ] as const).forEach(([name, getCompiler]) => {
   describe(name, () => {
     it('should work', async () => {
-      const [compiler, fs] = getCompiler('./simple.js');
+      const [compiler, _fs] = getCompiler('./simple.js');
       const stats = await compile(compiler);
 
-      console.log(getModuleSource('./simple.js', stats, fs));
+      console.log(stats.toJson({ source: true }).modules);
       // getModuleSource('./simple.js', stats, fs)?.should.toMatchSnapshot('simple.js');
     });
   });

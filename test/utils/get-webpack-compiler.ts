@@ -9,6 +9,8 @@ import type { Options as SwcOptions } from '@swc/core';
 
 import { StyleXPlugin, type StyleXPluginOption } from '../../dist';
 
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+
 export const externalModules = Object.keys(pkgJson.dependencies)
   .concat(Object.keys(pkgJson.peerDependencies))
   .concat(builtinModules)
@@ -64,6 +66,13 @@ export default (fixture: string, pluginOption?: StyleXPluginOption, config: webp
           ]
         }
         // {
+        //   test: /\.css$/i,
+        //   use: [
+        //     MiniCssExtractPlugin.loader,
+        //     'css-loader'
+        //   ]
+        // }
+        // {
         //   test: /\.(png|jpg|gif|svg|eot|ttf|woff|woff2)$/i,
         //   resourceQuery: /^(?!.*\?ignore-asset-modules).*$/,
         //   type: 'asset/resource'
@@ -74,10 +83,29 @@ export default (fixture: string, pluginOption?: StyleXPluginOption, config: webp
         // }
       ]
     },
-    optimization: { minimize: false },
+    optimization: {
+      minimize: false,
+      splitChunks: {
+        cacheGroups: {
+          stylex: {
+            name: 'stylex',
+            // We apply cacheGroups to style9 virtual css only
+            test: /stylex\.virtual\.css$/,
+            chunks: 'all',
+            type: 'css/mini-extract',
+            enforce: true
+          }
+        }
+      }
+    },
     externals: externalModules,
     plugins: [
-      new StyleXPlugin(pluginOption)
+      new StyleXPlugin(pluginOption),
+      new MiniCssExtractPlugin({
+        filename: 'static/css/[name].css',
+        chunkFilename: 'static/css/[name].css',
+        ignoreOrder: true
+      })
     ],
     ...config
   };
