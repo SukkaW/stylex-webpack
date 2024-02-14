@@ -3,10 +3,9 @@ import * as chai from 'chai';
 import { jestSnapshotPlugin } from 'mocha-chai-jest-snapshot';
 
 import getWebpackCompiler from './utils/get-webpack-compiler';
-// import getRspackCompiler from './utils/get-rspack-compiler';
 
 import compile from './utils/compile';
-import getModuleSource from './utils/get-module-source';
+// import getModuleSource from './utils/get-module-source';
 
 chai.should();
 chai.use(jestSnapshotPlugin());
