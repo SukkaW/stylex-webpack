@@ -14,14 +14,16 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist",
+    "next.d.ts",
     "next.js"
   ],
   "scripts": {
+    "prebuild": "rimraf dist",
     "build": "rollup -c rollup.config.ts --configPlugin swc3 --bundleConfigAsCjs",
-    "prerelease": "npm run build",
     "lint": "eslint --format=sukka .",
     "test": "mocha --require @swc-node/register test/index.ts",
     "test:update": "mocha --update --require @swc-node/register test/index.ts",
+    "prerelease": "npm run build && npm run lint",
     "release": "bumpp -r --all --commit=\"release: %s\" --tag=\"%s\""
   },
   "keywords": [
@@ -63,6 +65,7 @@
     "mocha": "^10.3.0",
     "mocha-chai-jest-snapshot": "^1.1.4",
     "next": "^14.1.0",
+    "rimraf": "^5.0.5",
     "rollup": "^4.10.0",
     "rollup-plugin-copy": "^3.5.0",
     "rollup-plugin-dts": "^6.1.0",

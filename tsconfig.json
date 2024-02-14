@@ -10,5 +10,5 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true
   },
-  "include": ["src/**/*", "rollup.config.ts", "test/**/*"]
+  "include": ["src/**/*", "rollup.config.ts", "test/**/*", "next.d.ts"]
 }

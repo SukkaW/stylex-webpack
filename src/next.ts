@@ -53,7 +53,7 @@ function getStyleXVirtualCssLoader(options: WebpackConfigContext, MiniCssExtract
   return loaders;
 }
 
-export = (pluginOptions?: StyleXPluginOption) => (nextConfig: NextConfig = {}): NextConfig => {
+export const withStyleX = (pluginOptions?: StyleXPluginOption) => (nextConfig: NextConfig = {}): NextConfig => {
   return {
     ...nextConfig,
     webpack(config: any, ctx: WebpackConfigContext) {
@@ -76,7 +76,7 @@ export = (pluginOptions?: StyleXPluginOption) => (nextConfig: NextConfig = {}): 
               && test.test('filename.css')
           )
       ).oneOf;
-      // Here we matches virtual css file emitted by Style9Plugin
+      // Here we matches virtual css file emitted by StyleXPlugin
       cssRules.unshift({
         test: VIRTUAL_CSS_PATTERN,
         use: getStyleXVirtualCssLoader(ctx, MiniCssExtractPlugin)
