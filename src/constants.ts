@@ -1,6 +1,7 @@
 export const PLUGIN_NAME = 'stylex';
 export const VIRTUAL_CSS_PATH = require.resolve('./stylex.virtual.css');
 export const VIRTUAL_CSS_PATTERN = /stylex\.virtual\.css/;
+export const STYLEX_CHUNK_NAME = '_stylex-webpack-generated';
 
 // Webpack does not export these constants
 // https://github.com/webpack/webpack/blob/b67626c7b4ffed8737d195b27c8cea1e68d58134/lib/OptimizationStages.js#L8
