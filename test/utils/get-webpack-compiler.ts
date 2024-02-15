@@ -86,16 +86,7 @@ export default (fixture: string, pluginOption?: StyleXPluginOption, config: webp
     optimization: {
       minimize: false,
       splitChunks: {
-        cacheGroups: {
-          stylex: {
-            name: 'stylex',
-            // We apply cacheGroups to style9 virtual css only
-            test: /stylex\.virtual\.css$/,
-            chunks: 'all',
-            type: 'css/mini-extract',
-            enforce: true
-          }
-        }
+        cacheGroups: {}
       }
     },
     externals: externalModules,

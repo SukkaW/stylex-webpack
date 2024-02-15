@@ -4,6 +4,7 @@ import stylexBabelPlugin from '@stylexjs/babel-plugin';
 import type { Options as StyleXOptions } from '@stylexjs/babel-plugin';
 import { stringifyRequest } from './lib/stringify-request';
 import { VIRTUAL_CSS_PATH, isSupplementedLoaderContext } from './constants';
+import loaderUtils from 'loader-utils';
 
 const PLUGIN_NAME = 'stylex';
 
@@ -64,14 +65,23 @@ export default async function stylexLoader(this: webpack.LoaderContext<StyleXLoa
     // this.stylexRules[filename] = metadata.stylex;
     logger?.debug(`Read stylex styles from ${this.resourcePath}:`, metadata.stylex);
 
+    // TODO: rspack doesn't support custom loader context
+    // Find a better way to register stylex rules to the compiler instance
     this.StyleXWebpackContextKey.registerStyleXRules(
       this.resourcePath,
       metadata.stylex as any
     );
 
+    const serializedStyleXRules = JSON.stringify(metadata.stylex);
+    const virtualFileName = loaderUtils.interpolateName(
+      this,
+      '[path][name].[hash:base64:8].stylex.virtual.css',
+      { content: serializedStyleXRules }
+    );
+
     const virtualCssRequest = stringifyRequest(
       this,
-      `${VIRTUAL_CSS_PATH}?${JSON.stringify(metadata.stylex)}`
+      `${virtualFileName}!=!${VIRTUAL_CSS_PATH}?${serializedStyleXRules}`
     );
     const postfix = `\nimport ${virtualCssRequest};`;
 
