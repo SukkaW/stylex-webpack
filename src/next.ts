@@ -1,5 +1,7 @@
 import nextMiniCssExtractPluginExports from 'next/dist/build/webpack/plugins/mini-css-extract-plugin';
 import { warn } from 'next/dist/build/output/log';
+import browserslist from 'next/dist/compiled/browserslist';
+import { lazyPostCSS } from 'next/dist/build/webpack/config/blocks/css';
 
 import type { NextConfig, WebpackConfigContext } from 'next/dist/server/config-shared';
 
@@ -10,6 +12,16 @@ import { VIRTUAL_CSS_PATTERN } from './constants';
 /** Next.js' precompilation add "__esModule: true", but doesn't add an actual default exports */
 // @ts-expect-error -- Next.js fucks something up
 const NextMiniCssExtractPlugin: typeof import('next/dist/build/webpack/plugins/mini-css-extract-plugin') = nextMiniCssExtractPluginExports.default;
+
+// Adopted from https://github.com/vercel/next.js/blob/1f1632979c78b3edfe59fd85d8cce62efcdee688/packages/next/build/webpack-config.ts#L60-L72
+const getSupportedBrowsers = (dir: string, isDevelopment: boolean) => {
+  try {
+    return browserslist.loadConfig({
+      path: dir,
+      env: isDevelopment ? 'development' : 'production'
+    });
+  } catch {}
+};
 
 const getNextMiniCssExtractPlugin = (isDev: boolean) => {
   // Use own MiniCssExtractPlugin to ensure HMR works
@@ -50,8 +62,25 @@ function getStyleXVirtualCssLoader(ctx: WebpackConfigContext, MiniCssExtractPlug
     });
   }
 
-  // We don't actually need to run postcss-loader or css-loader here
-  // As stylex virtual css won't contain any real css
+  // We don't actually use postcss-loader or css-loader to run against
+  // the stylex css (which doesn't exist yet).
+  // We use this loader to run against the virtual dummy css.
+  const postcss = () => lazyPostCSS(
+    ctx.dir,
+    getSupportedBrowsers(ctx.dir, ctx.dev),
+    undefined
+  );
+
+  loaders.push({
+    // https://github.com/vercel/next.js/blob/0572e218afe130656be53f7367bf18c4ea389f7d/packages/next/build/webpack/config/blocks/css/loaders/global.ts#L29-L38
+    loader: require.resolve('next/dist/build/webpack/loaders/css-loader/src'),
+    options: {
+      // https://github.com/vercel/next.js/blob/88a5f263f11cb55907f0d89a4cd53647ee8e96ac/packages/next/build/webpack/config/blocks/css/index.ts#L142-L147
+      postcss,
+      importLoaders: 1,
+      modules: false
+    }
+  });
 
   return loaders;
 }

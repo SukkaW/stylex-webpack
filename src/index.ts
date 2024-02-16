@@ -3,7 +3,7 @@ import stylexBabelPlugin from '@stylexjs/babel-plugin';
 import type { Rule as StyleXRule, Options as StyleXOptions } from '@stylexjs/babel-plugin';
 import path from 'path';
 import type { StyleXLoaderOptions } from './stylex-loader';
-import { OPTIMIZE_CHUNKS_STAGE_ADVANCED, PLUGIN_NAME, STYLEX_CHUNK_NAME, VIRTUAL_CSS_PATH, VIRTUAL_CSS_PATTERN } from './constants';
+import { PLUGIN_NAME, STYLEX_CHUNK_NAME, VIRTUAL_CSS_PATH, VIRTUAL_CSS_PATTERN } from './constants';
 import type { SupplementedLoaderContext } from './constants';
 
 const stylexLoaderPath = require.resolve('./stylex-loader');
