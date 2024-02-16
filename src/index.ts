@@ -86,6 +86,15 @@ export class StyleXPlugin {
       );
     }
 
+    compiler.options.optimization.splitChunks.cacheGroups ??= {};
+    compiler.options.optimization.splitChunks.cacheGroups[STYLEX_CHUNK_NAME] = {
+      name: STYLEX_CHUNK_NAME,
+      test: VIRTUAL_CSS_PATTERN,
+      type: 'css/mini-extract',
+      chunks: 'all',
+      enforce: true
+    };
+
     // const IS_RSPACK = Object.prototype.hasOwnProperty.call(compiler.webpack, 'rspackVersion');
 
     // stylex-loader adds virtual css import (which triggers virtual-loader)
@@ -139,49 +148,6 @@ export class StyleXPlugin {
           }
         }
       );
-
-      // Create a "stylex" chunk to hold all collected virtual stylex css
-      // This eliminates the need for manually specify splitChunks.cacheGroups.stylex
-      compilation.hooks.optimizeChunks.tap({
-        name: PLUGIN_NAME,
-        stage: OPTIMIZE_CHUNKS_STAGE_ADVANCED
-      },
-      () => {
-        // TODO-RSPACK: rspack doesn't support manually manipulating chunks
-        // Find a way to do this in rspack
-        const stylexChunk = compilation.namedChunks.get(STYLEX_CHUNK_NAME)
-          || compilation.addChunk(STYLEX_CHUNK_NAME);
-
-        const matchingChunks = new Set<webpack.Chunk>();
-        let moduleIndex = 0;
-
-        for (const module of compilation.modules) {
-          const moduleName = module.nameForCondition();
-          if (
-            module.type === 'css/mini-extract'
-            && moduleName
-            && VIRTUAL_CSS_PATTERN.test(moduleName)
-          ) {
-            const moduleChunks = compilation.chunkGraph.getModuleChunksIterable(module);
-
-            for (const chunk of moduleChunks) {
-              compilation.chunkGraph.disconnectChunkAndModule(chunk, module);
-
-              for (const group of chunk.groupsIterable) {
-                group.setModulePostOrderIndex(module, moduleIndex++);
-              }
-
-              matchingChunks.add(chunk);
-            }
-
-            compilation.chunkGraph.connectChunkAndModule(stylexChunk, module);
-          }
-        }
-
-        for (const chunk of matchingChunks) {
-          chunk.split(stylexChunk);
-        }
-      });
 
       compilation.hooks.processAssets.tap(
         {
