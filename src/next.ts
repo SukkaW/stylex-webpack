@@ -33,22 +33,25 @@ const getNextMiniCssExtractPlugin = (isDev: boolean) => {
 
 // Adopt from Next.js' getGlobalCssLoader
 // https://github.com/vercel/next.js/blob/d61b0761efae09bd9cb1201ff134ed8950d9deca/packages/next/src/build/webpack/config/blocks/css/loaders/global.ts#L7
-function getStyleXVirtualCssLoader(options: WebpackConfigContext, MiniCssExtractPlugin: typeof NextMiniCssExtractPlugin) {
+function getStyleXVirtualCssLoader(ctx: WebpackConfigContext, MiniCssExtractPlugin: typeof NextMiniCssExtractPlugin) {
   const loaders: webpack.RuleSetUseItem[] = [];
 
   // Adopt from Next.js' getClientStyleLoader
   // https://github.com/vercel/next.js/blob/56d35ede8ed2ab25fa8e29583d4e81e3e76a0e29/packages/next/src/build/webpack/config/blocks/css/loaders/global.ts#L7
-  if (!options.isServer) {
+  if (!ctx.isServer) {
     // https://github.com/vercel/next.js/blob/56d35ede8ed2ab25fa8e29583d4e81e3e76a0e29/packages/next/src/build/webpack/config/blocks/css/loaders/global.ts#L18
     // https://github.com/vercel/next.js/blob/56d35ede8ed2ab25fa8e29583d4e81e3e76a0e29/packages/next/src/build/webpack/config/blocks/css/loaders/client.ts#L3
     loaders.push({
       loader: (MiniCssExtractPlugin as any).loader,
       options: {
-        publicPath: `${(options as any).assetPrefix}/_next/`,
+        publicPath: `${(ctx as any).assetPrefix}/_next/`,
         esModule: false
       }
     });
   }
+
+  // We don't actually need to run postcss-loader or css-loader here
+  // As stylex virtual css won't contain any real css
 
   return loaders;
 }
@@ -130,7 +133,9 @@ export const withStyleX = (pluginOptions?: StyleXPluginOption) => (nextConfig: N
         stylexOption: {
           ...pluginOptions?.stylexOption,
           dev: ctx.dev
-        }
+        },
+        // Enforce nextjsMode to true
+        nextjsMode: true
       }));
 
       return config;

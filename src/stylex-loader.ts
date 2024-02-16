@@ -10,14 +10,16 @@ const PLUGIN_NAME = 'stylex';
 
 export interface StyleXLoaderOptions {
   stylexImports: string[],
-  stylexOption: Partial<StyleXOptions>
+  stylexOption: Partial<StyleXOptions>,
+  nextjsMode: boolean
 }
 
 export default async function stylexLoader(this: webpack.LoaderContext<StyleXLoaderOptions>, inputCode: string, inputSourceMap: any) {
   const callback = this.async();
   const {
     stylexImports,
-    stylexOption
+    stylexOption,
+    nextjsMode
   } = this.getOptions();
 
   // bail out early if the input doesn't contain stylex imports
@@ -73,15 +75,31 @@ export default async function stylexLoader(this: webpack.LoaderContext<StyleXLoa
     );
 
     const serializedStyleXRules = JSON.stringify(metadata.stylex);
-    const virtualFileName = loaderUtils.interpolateName(
-      this,
-      '[path][name].[hash:base64:8].stylex.virtual.css',
-      { content: serializedStyleXRules }
-    );
 
+    if (!nextjsMode) {
+      // Normal webpack mode
+
+      // We generate a virtual css file that looks like it is relative to the source
+      const virtualFileName = loaderUtils.interpolateName(
+        this,
+        '[path][name].[hash:base64:8].stylex.virtual.css',
+        { content: serializedStyleXRules }
+      );
+
+      const virtualCssRequest = stringifyRequest(
+        this,
+        `${virtualFileName}!=!${VIRTUAL_CSS_PATH}?${serializedStyleXRules}`
+      );
+      const postfix = `\nimport ${virtualCssRequest};`;
+
+      return callback(null, code + postfix, map ?? undefined);
+    }
+
+    // Next.js App Router doesn't support inline matchResource and inline loaders
+    // So we adapt Next.js' "external" css import approach instead
     const virtualCssRequest = stringifyRequest(
       this,
-      `${virtualFileName}!=!${VIRTUAL_CSS_PATH}?${serializedStyleXRules}`
+      `${VIRTUAL_CSS_PATH}?${serializedStyleXRules}`
     );
     const postfix = `\nimport ${virtualCssRequest};`;
 

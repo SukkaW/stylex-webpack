@@ -21,7 +21,13 @@ export interface StyleXPluginOption {
    *
    * @default false
    */
-  useCSSLayers?: boolean
+  useCSSLayers?: boolean,
+  /**
+   * Next.js Mode
+   *
+   * @default false
+   */
+  nextjsMode?: boolean
 }
 
 const getStyleXRules = (stylexRules: Map<string, readonly StyleXRule[]>, useCSSLayers: boolean) => {
@@ -50,7 +56,8 @@ export class StyleXPlugin {
   constructor({
     stylexImports = ['stylex', '@stylexjs/stylex'],
     useCSSLayers = false,
-    stylexOption = {}
+    stylexOption = {},
+    nextjsMode = false
   }: StyleXPluginOption = {}) {
     this.useCSSLayers = useCSSLayers;
     this.loaderOption = {
@@ -63,7 +70,8 @@ export class StyleXPlugin {
         treeshakeCompensation: true,
         importSources: stylexImports,
         ...stylexOption
-      }
+      },
+      nextjsMode
     };
   }
 
