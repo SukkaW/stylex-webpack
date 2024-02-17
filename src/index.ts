@@ -180,7 +180,7 @@ export class StyleXPlugin {
                   continue;
                 }
 
-                this.stylexRules.set(cssModule.identifier(), JSON.parse(stringifiedStylexRule));
+                this.stylexRules.set(cssModule.identifier(), JSON.parse(decodeURIComponent(stringifiedStylexRule)));
               }
             }
           }

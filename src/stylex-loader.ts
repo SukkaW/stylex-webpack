@@ -74,7 +74,8 @@ export default async function stylexLoader(this: webpack.LoaderContext<StyleXLoa
       metadata.stylex as any
     );
 
-    const serializedStyleXRules = JSON.stringify(metadata.stylex);
+    // color: #fff is not url safe
+    const serializedStyleXRules = encodeURIComponent(JSON.stringify(metadata.stylex));
 
     if (!nextjsMode) {
       // Normal webpack mode
