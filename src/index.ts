@@ -5,6 +5,7 @@ import path from 'path';
 import type { StyleXLoaderOptions } from './stylex-loader';
 import { PLUGIN_NAME, STYLEX_CHUNK_NAME, VIRTUAL_CSS_PATH, VIRTUAL_CSS_PATTERN } from './constants';
 import type { SupplementedLoaderContext } from './constants';
+import type { CssModule } from 'mini-css-extract-plugin';
 
 const stylexLoaderPath = require.resolve('./stylex-loader');
 
@@ -162,6 +163,26 @@ export class StyleXPlugin {
 
           if (stylexChunk == null) {
             return;
+          }
+
+          // Collect stylex rules from module instead of self maintained map
+          if (this.loaderOption.nextjsMode) {
+            const cssModulesInStylexChunk = compilation.chunkGraph.getChunkModulesIterableBySourceType(stylexChunk, 'css/mini-extract');
+
+            // we only re-collect stylex rules if we can found css in the stylex chunk
+            if (cssModulesInStylexChunk) {
+              this.stylexRules = new Map();
+
+              for (const cssModule of (cssModulesInStylexChunk as Iterable<CssModule>)) {
+                const stringifiedStylexRule = ((cssModule as any)._identifier as string).split('!').pop()?.split('?').pop();
+
+                if (!stringifiedStylexRule) {
+                  continue;
+                }
+
+                this.stylexRules.set(cssModule.identifier(), JSON.parse(stringifiedStylexRule));
+              }
+            }
           }
 
           // Let's find the css file that belongs to the stylex chunk
