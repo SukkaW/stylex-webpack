@@ -1,6 +1,6 @@
 {
   "name": "stylex-webpack",
-  "version": "0.2.0",
+  "version": "0.2.1-beta.0",
   "description": "The another Webpack Plugin for Facebook's StyleX",
   "homepage": "https://github.com/SukkaW/style9-webpack#readme",
   "repository": {
