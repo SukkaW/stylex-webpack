@@ -9,6 +9,8 @@ import { StyleXPlugin, type StyleXPluginOption } from './index';
 import type webpack from 'webpack';
 import { VIRTUAL_CSS_PATTERN } from './constants';
 
+import type { Processor as PostCSSProcessor } from 'postcss';
+
 /** Next.js' precompilation add "__esModule: true", but doesn't add an actual default exports */
 // @ts-expect-error -- Next.js fucks something up
 const NextMiniCssExtractPlugin: typeof import('next/dist/build/webpack/plugins/mini-css-extract-plugin') = nextMiniCssExtractPluginExports.default;
@@ -45,7 +47,7 @@ const getNextMiniCssExtractPlugin = (isDev: boolean) => {
 
 // Adopt from Next.js' getGlobalCssLoader
 // https://github.com/vercel/next.js/blob/d61b0761efae09bd9cb1201ff134ed8950d9deca/packages/next/src/build/webpack/config/blocks/css/loaders/global.ts#L7
-function getStyleXVirtualCssLoader(ctx: WebpackConfigContext, MiniCssExtractPlugin: typeof NextMiniCssExtractPlugin) {
+function getStyleXVirtualCssLoader(ctx: WebpackConfigContext, MiniCssExtractPlugin: typeof NextMiniCssExtractPlugin, postcss: () => Promise<any>) {
   const loaders: webpack.RuleSetUseItem[] = [];
 
   // Adopt from Next.js' getClientStyleLoader
@@ -65,12 +67,6 @@ function getStyleXVirtualCssLoader(ctx: WebpackConfigContext, MiniCssExtractPlug
   // We don't actually use postcss-loader or css-loader to run against
   // the stylex css (which doesn't exist yet).
   // We use this loader to run against the virtual dummy css.
-  const postcss = () => lazyPostCSS(
-    ctx.dir,
-    getSupportedBrowsers(ctx.dir, ctx.dev),
-    undefined
-  );
-
   loaders.push({
     // https://github.com/vercel/next.js/blob/0572e218afe130656be53f7367bf18c4ea389f7d/packages/next/build/webpack/config/blocks/css/loaders/global.ts#L29-L38
     loader: require.resolve('next/dist/build/webpack/loaders/css-loader/src'),
@@ -98,6 +94,16 @@ export const withStyleX = (pluginOptions?: StyleXPluginOption) => (nextConfig: N
       config.optimization.splitChunks ||= {};
       config.optimization.splitChunks.cacheGroups ||= {};
 
+      let lazyPostCSSPromise: Promise<{ postcss: typeof import('postcss'), postcssWithPlugins: PostCSSProcessor }> | null = null;
+      const postcss = () => {
+        lazyPostCSSPromise ||= lazyPostCSS(
+          ctx.dir,
+          getSupportedBrowsers(ctx.dir, ctx.dev),
+          undefined
+        );
+        return lazyPostCSSPromise;
+      };
+
       const MiniCssExtractPlugin = getNextMiniCssExtractPlugin(ctx.dev);
       // Based on https://github.com/vercel/next.js/blob/88a5f263f11cb55907f0d89a4cd53647ee8e96ac/packages/next/build/webpack/config/helpers.ts#L12-L18
       const cssRules = config.module.rules.find(
@@ -111,7 +117,7 @@ export const withStyleX = (pluginOptions?: StyleXPluginOption) => (nextConfig: N
       // Here we matches virtual css file emitted by StyleXPlugin
       cssRules.unshift({
         test: VIRTUAL_CSS_PATTERN,
-        use: getStyleXVirtualCssLoader(ctx, MiniCssExtractPlugin)
+        use: getStyleXVirtualCssLoader(ctx, MiniCssExtractPlugin, postcss)
       });
 
       // StyleX need to emit the css file on both server and client, both during the
@@ -164,7 +170,12 @@ export const withStyleX = (pluginOptions?: StyleXPluginOption) => (nextConfig: N
           dev: ctx.dev
         },
         // Enforce nextjsMode to true
-        nextjsMode: true
+        nextjsMode: true,
+        async transformCss(css) {
+          const { postcssWithPlugins } = await postcss();
+          const result = await postcssWithPlugins.process(css);
+          return result.css;
+        }
       }));
 
       return config;

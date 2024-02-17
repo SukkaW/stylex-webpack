@@ -66,6 +66,7 @@
     "mocha": "^10.3.0",
     "mocha-chai-jest-snapshot": "^1.1.4",
     "next": "^14.1.0",
+    "postcss": "^8.4.35",
     "rimraf": "^5.0.5",
     "rollup": "^4.10.0",
     "rollup-plugin-copy": "^3.5.0",
