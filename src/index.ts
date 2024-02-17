@@ -28,7 +28,15 @@ export interface StyleXPluginOption {
    *
    * @default false
    */
-  nextjsMode?: boolean
+  nextjsMode?: boolean,
+
+  /**
+   * Enable other CSS transformation
+   *
+   * Since stylex-webpack only inject CSS after all loaders, you can not use postcss-loader.
+   * With this you can incovate `postcss()` here.
+   */
+  transformCss?: (css: string) => string
 }
 
 const getStyleXRules = (stylexRules: Map<string, readonly StyleXRule[]>, useCSSLayers: boolean) => {
@@ -44,6 +52,8 @@ const getStyleXRules = (stylexRules: Map<string, readonly StyleXRule[]>, useCSSL
   );
 };
 
+const identityTransfrom = (css: string) => css;
+
 export type RegisterStyleXRules = (resourcePath: string, stylexRules: StyleXRule[]) => void;
 
 export class StyleXPlugin {
@@ -54,11 +64,14 @@ export class StyleXPlugin {
 
   loaderOption: StyleXLoaderOptions;
 
+  transformCss: (css: string) => string;
+
   constructor({
     stylexImports = ['stylex', '@stylexjs/stylex'],
     useCSSLayers = false,
     stylexOption = {},
-    nextjsMode = false
+    nextjsMode = false,
+    transformCss = identityTransfrom
   }: StyleXPluginOption = {}) {
     this.useCSSLayers = useCSSLayers;
     this.loaderOption = {
@@ -74,6 +87,7 @@ export class StyleXPlugin {
       },
       nextjsMode
     };
+    this.transformCss = transformCss;
   }
 
   apply(compiler: webpack.Compiler) {
@@ -200,7 +214,7 @@ export class StyleXPlugin {
 
           compilation.updateAsset(
             cssAssetDetails[0] /** cssFileName */,
-            new RawSource(stylexCSS)
+            new RawSource(this.transformCss(stylexCSS))
           );
         }
       );
