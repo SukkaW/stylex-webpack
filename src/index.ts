@@ -8,7 +8,7 @@ import type { SupplementedLoaderContext } from './constants';
 import type { CssModule } from 'mini-css-extract-plugin';
 
 const stylexLoaderPath = require.resolve('./stylex-loader');
-const stylexVirtualLoaderPath = require.resolve('./stylex-virtual-css-loader.ts');
+const stylexVirtualLoaderPath = require.resolve('./stylex-virtual-css-loader');
 
 type CSSTransformer = (css: string) => string | Buffer | Promise<string | Buffer>;
 export interface StyleXPluginOption {
