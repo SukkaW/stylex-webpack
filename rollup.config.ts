@@ -42,6 +42,14 @@ export default defineConfig([{
   plugins: [swc()],
   external
 }, {
+  input: 'src/stylex-virtual-css-loader.ts',
+  output: {
+    file: 'dist/stylex-virtual-css-loader.js',
+    format: 'commonjs'
+  },
+  plugins: [swc()],
+  external
+}, {
   input: 'src/next.ts',
   output: {
     file: 'dist/next.js',

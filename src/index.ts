@@ -8,6 +8,7 @@ import type { SupplementedLoaderContext } from './constants';
 import type { CssModule } from 'mini-css-extract-plugin';
 
 const stylexLoaderPath = require.resolve('./stylex-loader');
+const stylexVirtualLoaderPath = require.resolve('./stylex-virtual-css-loader.ts');
 
 type CSSTransformer = (css: string) => string | Buffer | Promise<string | Buffer>;
 export interface StyleXPluginOption {
@@ -58,8 +59,6 @@ const identityTransfrom: CSSTransformer = css => css;
 export type RegisterStyleXRules = (resourcePath: string, stylexRules: StyleXRule[]) => void;
 
 export class StyleXPlugin {
-  static stylexLoader = stylexLoaderPath;
-
   stylexRules = new Map<string, readonly StyleXRule[]>();
   useCSSLayers: boolean;
 
@@ -138,7 +137,7 @@ export class StyleXPlugin {
       NormalModule.getCompilationHooks(compilation).loader.tap(
         PLUGIN_NAME,
         (loaderContext, mod) => {
-          const extname = path.extname(mod.resource);
+          const extname = path.extname(mod.matchResource || mod.resource);
 
           if (
             // JavaScript (and Flow) modules
@@ -158,6 +157,15 @@ export class StyleXPlugin {
             mod.loaders.push({
               loader: stylexLoaderPath,
               options: this.loaderOption,
+              ident: null,
+              type: null
+            });
+          }
+
+          if (VIRTUAL_CSS_PATTERN.test(mod.matchResource || mod.resource)) {
+            mod.loaders.push({
+              loader: stylexVirtualLoaderPath,
+              options: {},
               ident: null,
               type: null
             });
