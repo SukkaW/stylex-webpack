@@ -75,7 +75,12 @@ export default async function stylexLoader(this: webpack.LoaderContext<StyleXLoa
     );
 
     // color: #fff is not url safe
-    const serializedStyleXRules = encodeURIComponent(JSON.stringify(metadata.stylex));
+    const serializedStyleXRules = JSON.stringify(metadata.stylex);
+
+    const urlParams = new URLSearchParams({
+      from: this.resourcePath,
+      stylex: serializedStyleXRules
+    });
 
     if (!nextjsMode) {
       // Normal webpack mode
@@ -89,7 +94,7 @@ export default async function stylexLoader(this: webpack.LoaderContext<StyleXLoa
 
       const virtualCssRequest = stringifyRequest(
         this,
-        `${virtualFileName}!=!${VIRTUAL_CSS_PATH}?${serializedStyleXRules}`
+        `${virtualFileName}!=!${VIRTUAL_CSS_PATH}?${urlParams.toString()}`
       );
       const postfix = `\nimport ${virtualCssRequest};`;
 
@@ -100,7 +105,7 @@ export default async function stylexLoader(this: webpack.LoaderContext<StyleXLoa
     // So we adapt Next.js' "external" css import approach instead
     const virtualCssRequest = stringifyRequest(
       this,
-      `${VIRTUAL_CSS_PATH}?${serializedStyleXRules}`
+      `${VIRTUAL_CSS_PATH}?${urlParams.toString()}`
     );
     const postfix = `\nimport ${virtualCssRequest};`;
 

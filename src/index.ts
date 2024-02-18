@@ -203,7 +203,11 @@ export class StyleXPlugin {
                   continue;
                 }
 
-                this.stylexRules.set(cssModule.identifier(), JSON.parse(decodeURIComponent(stringifiedStylexRule)));
+                const params = new URLSearchParams(stringifiedStylexRule);
+                const stylex = params.get('stylex');
+                if (stylex != null) {
+                  this.stylexRules.set(cssModule.identifier(), JSON.parse(stylex));
+                }
               }
             }
           }
