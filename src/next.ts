@@ -11,6 +11,8 @@ import { VIRTUAL_CSS_PATTERN } from './constants';
 
 import type { Processor as PostCSSProcessor } from 'postcss';
 
+import type { ConfigurationContext as WebpackConfigurationContext } from 'next/dist/build/webpack/config/utils';
+
 /** Next.js' precompilation add "__esModule: true", but doesn't add an actual default exports */
 // @ts-expect-error -- Next.js fucks something up
 const NextMiniCssExtractPlugin: typeof import('next/dist/build/webpack/plugins/mini-css-extract-plugin') = nextMiniCssExtractPluginExports.default;
@@ -22,7 +24,7 @@ const getSupportedBrowsers = (dir: string, isDevelopment: boolean) => {
       path: dir,
       env: isDevelopment ? 'development' : 'production'
     });
-  } catch {}
+  } catch { }
 };
 
 const getNextMiniCssExtractPlugin = (isDev: boolean) => {
@@ -84,13 +86,14 @@ function getStyleXVirtualCssLoader(ctx: WebpackConfigContext, MiniCssExtractPlug
 export const withStyleX = (pluginOptions?: StyleXPluginOption) => (nextConfig: NextConfig = {}): NextConfig => {
   return {
     ...nextConfig,
-    webpack(config: any, ctx: WebpackConfigContext) {
+    webpack(config: webpack.Configuration & WebpackConfigurationContext, ctx: WebpackConfigContext) {
       if (typeof nextConfig.webpack === 'function') {
         config = nextConfig.webpack(config, ctx);
       }
 
       // For some reason, Next 11.0.1 has `config.optimization.splitChunks`
       // set to `false` when webpack 5 is enabled.
+      config.optimization ||= {};
       config.optimization.splitChunks ||= {};
       config.optimization.splitChunks.cacheGroups ||= {};
 
@@ -106,19 +109,26 @@ export const withStyleX = (pluginOptions?: StyleXPluginOption) => (nextConfig: N
 
       const MiniCssExtractPlugin = getNextMiniCssExtractPlugin(ctx.dev);
       // Based on https://github.com/vercel/next.js/blob/88a5f263f11cb55907f0d89a4cd53647ee8e96ac/packages/next/build/webpack/config/helpers.ts#L12-L18
-      const cssRules = config.module.rules.find(
-        (rule: any) => Array.isArray(rule.oneOf)
-          && rule.oneOf.some(
-            ({ test }: any) => typeof test === 'object'
-              && typeof test.test === 'function'
-              && test.test('filename.css')
-          )
+      const cssRules = (
+        config.module?.rules?.find(
+          rule => typeof rule === 'object'
+            && rule !== null
+            && Array.isArray(rule.oneOf)
+            && rule.oneOf.some(
+              setRule => setRule
+                && setRule.test instanceof RegExp
+                && typeof setRule.test.test === 'function'
+                && setRule.test.test('filename.css')
+            )
+        ) as webpack.RuleSetRule
       ).oneOf;
       // Here we matches virtual css file emitted by StyleXPlugin
-      cssRules.unshift({
+      cssRules?.unshift({
         test: VIRTUAL_CSS_PATTERN,
         use: getStyleXVirtualCssLoader(ctx, MiniCssExtractPlugin, postcss)
       });
+
+      config.plugins ??= [];
 
       // StyleX need to emit the css file on both server and client, both during the
       // development and production.
