@@ -36,7 +36,7 @@ const getNextMiniCssExtractPlugin = (isDev: boolean) => {
   if (isDev) {
     try {
       // Check if hotModuleReplacement exists
-      require('next/dist/compiled/mini-css-extract-plugin/hmr/hotModuleReplacement');
+      require.resolve('next/dist/compiled/mini-css-extract-plugin/hmr/hotModuleReplacement');
       return NextMiniCssExtractPlugin;
     } catch {
       warn('Next.js built-in mini-css-extract-plugin is broken, will fallback to "mini-css-extract-plugin"');
