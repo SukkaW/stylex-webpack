@@ -60,7 +60,7 @@ function getStyleXVirtualCssLoader(ctx: WebpackConfigContext, MiniCssExtractPlug
     loaders.push({
       loader: (MiniCssExtractPlugin as any).loader,
       options: {
-        publicPath: `${(ctx as any).assetPrefix}/_next/`,
+        publicPath: `${ctx.config.assetPrefix}/_next/`,
         esModule: false
       }
     });
