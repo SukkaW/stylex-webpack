@@ -130,7 +130,7 @@ export class StyleXPlugin {
     });
 
     const { Compilation, NormalModule, sources } = compiler.webpack;
-    const { RawSource } = sources;
+    const { RawSource, ConcatSource } = sources;
 
     // Apply loader to JS modules
     compiler.hooks.make.tap(PLUGIN_NAME, (compilation) => {
@@ -225,9 +225,11 @@ export class StyleXPlugin {
             return;
           }
 
+          const finalCss = await this.transformCss(stylexCSS);
+
           compilation.updateAsset(
             cssAssetDetails[0] /** cssFileName */,
-            new RawSource(await this.transformCss(stylexCSS))
+            source => new ConcatSource(source, new RawSource(finalCss))
           );
         }
       );
