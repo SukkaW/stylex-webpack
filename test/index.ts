@@ -19,7 +19,9 @@ chai.use(jestSnapshotPlugin());
       const [compiler, _fs] = getCompiler('./simple.js');
       const stats = await compile(compiler);
 
-      console.log(stats.toJson({ source: true }).chunks);
+      const { chunks, modules } = stats.toJson({ source: true });
+
+      console.log(chunks, modules);
       // getModuleSource('./simple.js', stats, fs)?.should.toMatchSnapshot('simple.js');
     });
   });
