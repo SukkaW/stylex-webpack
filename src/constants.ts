@@ -2,6 +2,7 @@ export const PLUGIN_NAME = 'stylex';
 export const VIRTUAL_CSS_PATH = require.resolve('./stylex.virtual.css');
 export const VIRTUAL_CSS_PATTERN = /stylex\.virtual\.css/;
 export const STYLEX_CHUNK_NAME = '_stylex-webpack-generated';
+export const INCLUDE_REGEXP = /\.[cm]?[jt]sx?$/;
 
 import type webpack from 'webpack';
 import type { RegisterStyleXRules } from '.';

@@ -3,7 +3,7 @@ import stylexBabelPlugin from '@stylexjs/babel-plugin';
 import type { Rule as StyleXRule, Options as StyleXOptions } from '@stylexjs/babel-plugin';
 import path from 'path';
 import type { StyleXLoaderOptions } from './stylex-loader';
-import { PLUGIN_NAME, STYLEX_CHUNK_NAME, VIRTUAL_CSS_PATH, VIRTUAL_CSS_PATTERN } from './constants';
+import { INCLUDE_REGEXP, PLUGIN_NAME, STYLEX_CHUNK_NAME, VIRTUAL_CSS_PATH, VIRTUAL_CSS_PATTERN } from './constants';
 import type { SupplementedLoaderContext } from './constants';
 import type { CssModule } from 'mini-css-extract-plugin';
 
@@ -139,12 +139,7 @@ export class StyleXPlugin {
         (loaderContext, mod) => {
           const extname = path.extname(mod.matchResource || mod.resource);
 
-          if (
-            // JavaScript (and Flow) modules
-            /\.jsx?/.test(extname)
-            // TypeScript modules
-            || /\.tsx?/.test(extname)
-          ) {
+          if (INCLUDE_REGEXP.test(extname)) {
             (loaderContext as SupplementedLoaderContext).StyleXWebpackContextKey = {
               registerStyleXRules: (resourcePath, stylexRules) => {
                 this.stylexRules.set(resourcePath, stylexRules);
@@ -194,7 +189,7 @@ export class StyleXPlugin {
 
             // we only re-collect stylex rules if we can found css in the stylex chunk
             if (cssModulesInStylexChunk) {
-              this.stylexRules = new Map();
+              this.stylexRules.clear();
 
               for (const cssModule of (cssModulesInStylexChunk as Iterable<CssModule>)) {
                 const stringifiedStylexRule = ((cssModule as any)._identifier as string).split('!').pop()?.split('?').pop();
