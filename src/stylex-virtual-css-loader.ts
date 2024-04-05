@@ -16,6 +16,8 @@ export default function (this: webpack.LoaderContext<unknown>, inputCode: string
 
     // If we got stylex in the virtual css import, we need to disable the cache
     // to fix HMR and Next.js navigation
+    // TODO: find a better way to mark the generated chunk as uncacheable instead
+    // of disable caching the result of this loader
     this.cacheable(false);
 
     // @ts-expect-error -- getHashDigest supports string & xxhash64
