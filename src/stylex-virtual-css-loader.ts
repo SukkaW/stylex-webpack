@@ -14,6 +14,10 @@ export default function (this: webpack.LoaderContext<unknown>, inputCode: string
       return;
     }
 
+    // If we got stylex in the virtual css import, we need to disable the cache
+    // to fix HMR and Next.js navigation
+    this.cacheable(false);
+
     // @ts-expect-error -- getHashDigest supports string & xxhash64
     const hash = getHashDigest(stylex, 'xxhash64', 'base62', 32);
 
