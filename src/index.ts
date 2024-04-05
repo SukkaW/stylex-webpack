@@ -213,7 +213,7 @@ export class StyleXPlugin {
           }
 
           // Let's find the css file that belongs to the stylex chunk
-          const cssAssetDetails = Object.entries(assets).find(([assetName]) => stylexChunk.files.has(assetName) && assetName.includes(STYLEX_CHUNK_NAME));
+          const cssAssetDetails = Object.entries(assets).find(([assetName]) => stylexChunk.files.has(assetName) && assetName.endsWith('.css'));
 
           if (!cssAssetDetails) {
             return;
