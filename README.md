@@ -1,21 +1,21 @@
 # stylex-webpack
 
-[First introduced at React Conf 2020 by Frank Yan](https://www.youtube.com/watch?v=9JZHodNR184), [stylex](https://stylexjs.com/) is a framework agnostic CSS-in-JS system with near-zero runtime, ahead-of-time compiler, atomic CSS extraction that powers [Facebook.com](https://www.facebook.com).
+[First introduced at React Conf 2020 by Frank Yan],  is a framework agnostic CSS-in-JS system with near-zero runtime, ahead-of-time compiler, atomic CSS extraction that powers [Facebook.com](https://www.facebook.com).
 
-`stylex-webpack` is an alternative webpack plugin and loader for stylex.
+[First introduced by Frank Yan at React Conf 2020](https://www.youtube.com/watch?v=9JZHodNR184), [StyleX](https://stylexjs.com/) framework agnostic CSS-in-JS system with near-zero runtime, ahead-of-time compiler, atomic CSS extraction that powers Facebook and Instagram.
 
 ## Motivation
 
-stylex provides a CSS-in-JS compiler, which means you will write your CSS in your JavaScript/JSX/TSX. But unlike other CSS-in-JS solutions that collect and process styles inside the browser, stylex will read your source code, collect your style and transform your JS/JSX/TSX, stripping runtime calls as much as possible (making the value of `className` a static string literal), and output CSS elsewhere.
+stylex offers a CSS-in-JS compiler, allowing you to write CSS in your JavaScript/JSX/TSX. However, unlike other CSS-in-JS solutions that gather and process styles within the browser, stylex will read your source code, collect your style and transform your JS/JSX/TSX, stripping runtime calls as much as possible (making the value of `className` a static string literal), and output CSS elsewhere.
 
-stylex does provide a webpack plugin. Under the hood, it will traverse through the source code, collect styles, and emit a new CSS asset during the webpack compilation. However, it has some limitations:
+StyleX does provide a webpack plugin. Under the hood, it will traverse through the source code, collect styles, and emit a new CSS asset during the webpack compilation. However, it does come with some limitations:
 
-- stylex's official Next.js setup requires a `.babelrc` file, which disables Next.js' built-in SWC compiler.
-- stylex's official Next.js plugin requires a CSS asset to pre-exist so that it can append the extracted CSS to it.
+- StyleX's official Next.js setup requires a `.babelrc` file, which disables Next.js' built-in SWC compiler.
+- StyleX's official Next.js plugin requires a CSS asset to pre-exist so that it can append the extracted CSS to it.
 
-I start this project as a Proof of Concept, to see if it is possible to make a webpack plugin for ststylex that doesn't disable Next.js' SWC compiler. I have already made [a similar webpack plugin for style9](https://github.com/sukkaw/style9-webpack), which is also an AoT atomic CSS-in-JS system that is inspired by stylex.
+I start this project as a Proof of Concept, to see if it is possible to make a webpack plugin for ststylex that doesn't disable Next.js' SWC compiler. I have already made [a similar webpack plugin for style9](https://github.com/sukkaw/style9-webpack), which is also an AoT atomic CSS-in-JS system that is inspired by StyleX.
 
-Unlike stylex's official webpack plugin, `stylex-webpack` requires you have setup `css-loader` and `MiniCssExtractPlugin` in your webpack configuration, just like your normal CSS based webpack project. `stylex-webpack`'s built-in loader will generate a virtual CSS import containing a dummy CSS rule. This allows the `MiniCssExtractPlugin` to collect those virtual CSS imports and emit a CSS asset, which `stylex-webpack` will later inject the actual extracted CSS into.
+Unlike stylex's official webpack plugin, `stylex-webpack` requires you have setup `css-loader` and `MiniCssExtractPlugin` in your webpack configuration, just like your normal CSS based webpack project. `stylex-webpack`'s built-in loader will generate a virtual CSS import containing a dummy CSS rule. This allows the `MiniCssExtractPlugin` to collect those virtual CSS imports and emit a CSS asset, which `stylex-webpack` will later inject the actual extracted CSS into at the `processAssets` stage.
 
 ## Installation
 
