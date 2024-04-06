@@ -213,11 +213,15 @@ export class StyleXPlugin {
           }
 
           // Let's find the css file that belongs to the stylex chunk
-          const cssAssetDetails = Object.entries(assets).find(([assetName]) => stylexChunk.files.has(assetName) && assetName.endsWith('.css'));
+          const cssAssetDetails = Object.entries(assets).filter(([assetName]) => stylexChunk.files.has(assetName) && assetName.endsWith('.css'));
 
-          if (!cssAssetDetails) {
+          if (cssAssetDetails.length === 0) {
             return;
           }
+          if (cssAssetDetails.length > 1) {
+            console.warn('[stylex-webpack] Multiple CSS assets found for the stylex chunk. This should not happen. Please report this issue.');
+          }
+          const stylexAsset = cssAssetDetails[0];
 
           const stylexCSS = getStyleXRules(this.stylexRules, this.useCSSLayers);
 
@@ -228,7 +232,7 @@ export class StyleXPlugin {
           const finalCss = await this.transformCss(stylexCSS);
 
           compilation.updateAsset(
-            cssAssetDetails[0] /** cssFileName */,
+            stylexAsset[0] /** cssFileName */,
             source => new ConcatSource(source, new RawSource(finalCss))
           );
         }
