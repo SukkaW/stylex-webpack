@@ -184,6 +184,11 @@ export const withStyleX = (pluginOptions?: StyleXPluginOption) => (nextConfig: N
         async transformCss(css) {
           const { postcssWithPlugins } = await postcss();
           const result = await postcssWithPlugins.process(css);
+
+          if (pluginOptions?.transformCss) {
+            return pluginOptions.transformCss(result.css);
+          }
+
           return result.css;
         }
       }));
