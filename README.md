@@ -1,7 +1,5 @@
 # stylex-webpack
 
-[First introduced at React Conf 2020 by Frank Yan],  is a framework agnostic CSS-in-JS system with near-zero runtime, ahead-of-time compiler, atomic CSS extraction that powers [Facebook.com](https://www.facebook.com).
-
 [First introduced by Frank Yan at React Conf 2020](https://www.youtube.com/watch?v=9JZHodNR184), [StyleX](https://stylexjs.com/) framework agnostic CSS-in-JS system with near-zero runtime, ahead-of-time compiler, atomic CSS extraction that powers Facebook and Instagram.
 
 ## Motivation
