@@ -12,6 +12,11 @@ const stylexVirtualLoaderPath = require.resolve('./stylex-virtual-css-loader');
 
 type CSSTransformer = (css: string) => string | Buffer | Promise<string | Buffer>;
 export interface StyleXPluginOption {
+  /**
+   * stylex options passed to stylex babel plugin
+   *
+   * @see https://stylexjs.com/docs/api/configuration/babel-plugin/
+   */
   stylexOption?: Partial<StyleXOptions>,
   /**
    * Specify where stylex will be imported from
