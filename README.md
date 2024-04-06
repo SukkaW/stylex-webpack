@@ -21,11 +21,11 @@ Unlike stylex's official webpack plugin, `stylex-webpack` requires you have setu
 
 ```sh
 # npm
-npm i style9-webpack
+npm i stylex-webpack
 # Yarn
-yarn add style9-webpack
+yarn add stylex-webpack
 # pnpm
-pnpm add style9-webpack
+pnpm add stylex-webpack
 ```
 
 ## Usage
@@ -66,7 +66,7 @@ module.exports = {
 // next.config.js
 const { withStyleX } = require('stylex-webpack/next');
 
-module.exports = withStyle9({
+module.exports = withStyleX({
   // stylex-webpack options goes here, see the following section for more details
 })({
   // Your Next.js config goes here.
