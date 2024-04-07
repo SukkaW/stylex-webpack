@@ -14,9 +14,19 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist",
-    "next.d.ts",
-    "next.js"
+    "next"
   ],
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./next": {
+      "types": "./next/index.d.ts",
+      "default": "./next/index.js"
+    }
+  },
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "rollup -c rollup.config.ts --configPlugin swc3 --bundleConfigAsCjs",
@@ -42,7 +52,8 @@
     "@babel/plugin-syntax-jsx": "^7.24.1",
     "@babel/plugin-syntax-typescript": "^7.24.1",
     "@stylexjs/babel-plugin": "^0.5.1",
-    "loader-utils": "^3.2.1"
+    "loader-utils": "^3.2.1",
+    "rollup": "^4.14.0"
   },
   "devDependencies": {
     "@eslint-sukka/node": "^5.1.2",
@@ -68,7 +79,6 @@
     "next": "^14.1.4",
     "postcss": "^8.4.38",
     "rimraf": "^5.0.5",
-    "rollup": "^4.14.0",
     "rollup-plugin-copy": "^3.5.0",
     "rollup-plugin-dts": "^6.1.0",
     "rollup-plugin-swc3": "^0.11.0",
