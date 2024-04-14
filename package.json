@@ -34,7 +34,7 @@
     "test": "mocha --require @swc-node/register test/index.ts",
     "test:update": "mocha --update --require @swc-node/register test/index.ts",
     "prerelease": "npm run build && npm run lint",
-    "release": "bumpp -r --all --commit=\"release: %s\" --tag=\"%s\""
+    "release": "bumpp -r --all --commit \"release: %s\" --tag \"%s\""
   },
   "keywords": [
     "css",
@@ -66,7 +66,7 @@
     "@types/mocha": "^10.0.6",
     "@types/node": "^20.12.4",
     "browserslist": "^4.23.0",
-    "bumpp": "^9.3.0",
+    "bumpp": "^9.4.0",
     "chai": "^4.4.1",
     "css-loader": "^6.10.0",
     "eslint": "^8.57.0",
