@@ -67,7 +67,7 @@ export default async function stylexLoader(this: webpack.LoaderContext<StyleXLoa
     // this.stylexRules[filename] = metadata.stylex;
     logger?.debug(`Read stylex styles from ${this.resourcePath}:`, metadata.stylex);
 
-    // TODO: rspack doesn't support custom loader context
+    // TODO-RSPACK: doesn't support custom loader context
     // Find a better way to register stylex rules to the compiler instance
     this.StyleXWebpackContextKey.registerStyleXRules(
       this.resourcePath,
