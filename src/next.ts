@@ -105,7 +105,7 @@ export function withStyleX(pluginOptions?: StyleXPluginOption) {
           ctx.dir,
           getSupportedBrowsers(ctx.dir, ctx.dev),
           undefined,
-          false
+          config.experimental.useLightningcss
         );
         return lazyPostCSSPromise;
       };
