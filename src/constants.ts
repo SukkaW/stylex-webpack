@@ -13,7 +13,7 @@ export type SupplementedLoaderContext<Options = unknown> = webpack.LoaderContext
   }
 };
 
-export const isSupplementedLoaderContext = <T>(context: webpack.LoaderContext<T>): context is SupplementedLoaderContext<T> => {
+export function isSupplementedLoaderContext<T>(context: webpack.LoaderContext<T>): context is SupplementedLoaderContext<T> {
   // eslint-disable-next-line prefer-object-has-own -- target older
   return Object.prototype.hasOwnProperty.call(context, 'StyleXWebpackContextKey');
-};
+}

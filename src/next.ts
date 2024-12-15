@@ -5,7 +5,8 @@ import { lazyPostCSS } from 'next/dist/build/webpack/config/blocks/css';
 
 import type { NextConfig, WebpackConfigContext } from 'next/dist/server/config-shared';
 
-import { StyleXPlugin, type StyleXPluginOption } from './index';
+import { StyleXPlugin } from './index';
+import type { StyleXPluginOption } from './index';
 import type webpack from 'webpack';
 import { VIRTUAL_CSS_PATTERN } from './constants';
 
@@ -18,16 +19,16 @@ import type { ConfigurationContext as WebpackConfigurationContext } from 'next/d
 const NextMiniCssExtractPlugin: typeof import('next/dist/build/webpack/plugins/mini-css-extract-plugin') = nextMiniCssExtractPluginExports.default;
 
 // Adopted from https://github.com/vercel/next.js/blob/1f1632979c78b3edfe59fd85d8cce62efcdee688/packages/next/build/webpack-config.ts#L60-L72
-const getSupportedBrowsers = (dir: string, isDevelopment: boolean) => {
+function getSupportedBrowsers(dir: string, isDevelopment: boolean) {
   try {
     return browserslist.loadConfig({
       path: dir,
       env: isDevelopment ? 'development' : 'production'
     });
   } catch { }
-};
+}
 
-const getNextMiniCssExtractPlugin = (isDev: boolean) => {
+function getNextMiniCssExtractPlugin(isDev: boolean) {
   // Use own MiniCssExtractPlugin to ensure HMR works
   // v9 has issues when using own plugin in production
   // v10.2.1 has issues when using built-in plugin in development since it
@@ -40,12 +41,13 @@ const getNextMiniCssExtractPlugin = (isDev: boolean) => {
       return NextMiniCssExtractPlugin;
     } catch {
       warn('Next.js built-in mini-css-extract-plugin is broken, will fallback to "mini-css-extract-plugin"');
+      // eslint-disable-next-line @typescript-eslint/no-require-imports -- Require only when needed
       return require('mini-css-extract-plugin');
     }
   }
   // Always use Next.js built-in MiniCssExtractPlugin in production
   return NextMiniCssExtractPlugin;
-};
+}
 
 // Adopt from Next.js' getGlobalCssLoader
 // https://github.com/vercel/next.js/blob/d61b0761efae09bd9cb1201ff134ed8950d9deca/packages/next/src/build/webpack/config/blocks/css/loaders/global.ts#L7
@@ -83,8 +85,8 @@ function getStyleXVirtualCssLoader(ctx: WebpackConfigContext, MiniCssExtractPlug
   return loaders;
 }
 
-export const withStyleX = (pluginOptions?: StyleXPluginOption) => (nextConfig: NextConfig = {}): NextConfig => {
-  return {
+export function withStyleX(pluginOptions?: StyleXPluginOption) {
+  return (nextConfig: NextConfig = {}): NextConfig => ({
     ...nextConfig,
     webpack(config: webpack.Configuration & WebpackConfigurationContext, ctx: WebpackConfigContext) {
       if (typeof nextConfig.webpack === 'function') {
@@ -102,7 +104,8 @@ export const withStyleX = (pluginOptions?: StyleXPluginOption) => (nextConfig: N
         lazyPostCSSPromise ||= lazyPostCSS(
           ctx.dir,
           getSupportedBrowsers(ctx.dir, ctx.dev),
-          undefined
+          undefined,
+          false
         );
         return lazyPostCSSPromise;
       };
@@ -195,5 +198,5 @@ export const withStyleX = (pluginOptions?: StyleXPluginOption) => (nextConfig: N
 
       return config;
     }
-  };
-};
+  });
+}

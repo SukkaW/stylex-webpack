@@ -1,11 +1,15 @@
 import type webpack from 'webpack';
-import stylexBabelPlugin from '@stylexjs/babel-plugin';
 import type { Rule as StyleXRule, Options as StyleXOptions } from '@stylexjs/babel-plugin';
-import path from 'path';
 import type { StyleXLoaderOptions } from './stylex-loader';
-import { INCLUDE_REGEXP, PLUGIN_NAME, STYLEX_CHUNK_NAME, VIRTUAL_CSS_PATH, VIRTUAL_CSS_PATTERN } from './constants';
 import type { SupplementedLoaderContext } from './constants';
 import type { CssModule } from 'mini-css-extract-plugin';
+import type { Buffer } from 'node:buffer';
+
+import { INCLUDE_REGEXP, PLUGIN_NAME, STYLEX_CHUNK_NAME, VIRTUAL_CSS_PATH, VIRTUAL_CSS_PATTERN } from './constants';
+
+import stylexBabelPlugin from '@stylexjs/babel-plugin';
+import path from 'node:path';
+import process from 'node:process';
 
 const stylexLoaderPath = require.resolve('./stylex-loader');
 const stylexVirtualLoaderPath = require.resolve('./stylex-virtual-css-loader');
@@ -46,7 +50,7 @@ export interface StyleXPluginOption {
   transformCss?: CSSTransformer
 }
 
-const getStyleXRules = (stylexRules: Map<string, readonly StyleXRule[]>, useCSSLayers: boolean) => {
+function getStyleXRules(stylexRules: Map<string, readonly StyleXRule[]>, useCSSLayers: boolean) {
   if (stylexRules.size === 0) {
     return null;
   }
@@ -57,7 +61,7 @@ const getStyleXRules = (stylexRules: Map<string, readonly StyleXRule[]>, useCSSL
     allRules,
     useCSSLayers
   );
-};
+}
 
 const identityTransfrom: CSSTransformer = css => css;
 

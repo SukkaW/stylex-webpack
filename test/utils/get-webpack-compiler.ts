@@ -1,13 +1,14 @@
-import path from 'path';
+import path from 'node:path';
 
 import webpack from 'webpack';
 import { createFsFromVolume, Volume } from 'memfs';
 
 import pkgJson from '../../package.json';
-import { builtinModules } from 'module';
+import { builtinModules } from 'node:module';
 import type { Options as SwcOptions } from '@swc/core';
 
-import { StyleXPlugin, type StyleXPluginOption } from '../../dist';
+import { StyleXPlugin } from '../../dist';
+import type { StyleXPluginOption } from '../../dist';
 
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
@@ -16,29 +17,31 @@ export const externalModules = Object.keys(pkgJson.dependencies)
   .concat(builtinModules)
   .concat(['react', 'react/jsx-runtime', 'preact/hooks', 'preact/compat', 'preact']);
 
-const useSwcLoader = (isTSX: boolean) => ({
-  loader: 'swc-loader',
-  options: {
-    jsc: {
-      parser: {
-        syntax: isTSX ? 'typescript' : 'ecmascript',
-        ...(
-          isTSX
-            ? { tsx: true }
-            : { jsx: true }
-        )
-      },
-      target: 'esnext',
-      transform: {
-        react: {
-          runtime: 'automatic',
-          refresh: false,
-          development: false
+function useSwcLoader(isTSX: boolean) {
+  return {
+    loader: 'swc-loader',
+    options: {
+      jsc: {
+        parser: {
+          syntax: isTSX ? 'typescript' : 'ecmascript',
+          ...(
+            isTSX
+              ? { tsx: true }
+              : { jsx: true }
+          )
+        },
+        target: 'esnext',
+        transform: {
+          react: {
+            runtime: 'automatic',
+            refresh: false,
+            development: false
+          }
         }
       }
-    }
-  } satisfies SwcOptions
-});
+    } satisfies SwcOptions
+  };
+}
 
 export default (fixture: string, pluginOption?: StyleXPluginOption, config: webpack.Configuration = {}) => {
   const fullConfig: webpack.Configuration = {
