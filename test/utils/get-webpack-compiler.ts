@@ -7,8 +7,8 @@ import pkgJson from '../../package.json';
 import { builtinModules } from 'node:module';
 import type { Options as SwcOptions } from '@swc/core';
 
-import { StyleXPlugin } from '../../dist';
-import type { StyleXPluginOption } from '../../dist';
+import { StyleXPlugin } from '../../src';
+import type { StyleXPluginOption } from '../../src';
 
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 

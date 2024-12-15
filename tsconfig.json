@@ -8,7 +8,8 @@
     "isolatedModules": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "strict": true
+    "strict": true,
+    "skipLibCheck": true
   },
   "include": ["src/**/*", "test/**/*", "next.d.ts"],
   "exclude": ["node_modules", "dist"]

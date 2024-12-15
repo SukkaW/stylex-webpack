@@ -10,7 +10,7 @@ const externalModules = Object.keys(pkgJson.dependencies)
   .concat(Object.keys(pkgJson.peerDependencies))
   .concat(builtinModules)
   .concat('next');
-const external = (id: string) => externalModules.some((name) => id === name || id.startsWith(`${name}/`));
+const external = (id: string) => id.startsWith('node:') || externalModules.some((name) => id === name || id.startsWith(`${name}/`));
 
 export default defineConfig([{
   input: 'src/index.ts',
@@ -33,7 +33,8 @@ export default defineConfig([{
     file: 'dist/index.d.ts',
     format: 'commonjs'
   },
-  plugins: [dts()]
+  external,
+  plugins: [dts({ respectExternal: true })]
 }, {
   input: 'src/stylex-loader.ts',
   output: {

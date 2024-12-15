@@ -87,7 +87,7 @@ export default async function stylexLoader(this: webpack.LoaderContext<StyleXLoa
 
       // We generate a virtual css file that looks like it is relative to the source
       const virtualFileName = loaderUtils.interpolateName(
-        this,
+        this as any,
         '[path][name].[hash:base64:8].stylex.virtual.css',
         { content: serializedStyleXRules }
       );
