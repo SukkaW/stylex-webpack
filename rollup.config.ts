@@ -22,7 +22,7 @@ export default defineConfig([{
     swc(),
     copy({
       targets: [
-        { src: 'src/stylex.virtual.css', dest: 'dist' }
+        { src: 'src/stylex-entrypoint.css', dest: 'dist' }
       ]
     })
   ],

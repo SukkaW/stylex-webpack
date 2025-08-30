@@ -1,0 +1,5 @@
+/*
+ * This is a noop file to be imported at the entrypoint of your App
+ *
+ * During bundling, the stylex webpack plugin will replace content with generated CSS
+ */
