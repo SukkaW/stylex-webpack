@@ -1,4 +1,4 @@
-import type webpack from 'webpack';
+import type { LoaderContext as WebpackLoaderContext } from 'webpack';
 import { transformAsync as babelTransformAsync } from '@babel/core';
 import stylexBabelPlugin from '@stylexjs/babel-plugin';
 import type { Options as StyleXOptions } from '@stylexjs/babel-plugin';
@@ -12,7 +12,7 @@ export interface StyleXLoaderOptions {
   nextjsMode: boolean
 }
 
-export default async function stylexLoader(this: webpack.LoaderContext<StyleXLoaderOptions>, inputCode: string, inputSourceMap: any) {
+export default async function stylexLoader(this: WebpackLoaderContext<StyleXLoaderOptions>, inputCode: string, inputSourceMap: any) {
   const callback = this.async();
   const {
     stylexImports,

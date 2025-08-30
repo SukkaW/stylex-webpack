@@ -1,4 +1,4 @@
-import type webpack from 'webpack';
+import type * as webpack from 'webpack';
 import type { Rule as StyleXRule, Options as StyleXOptions } from '@stylexjs/babel-plugin';
 import type { StyleXLoaderOptions } from './stylex-loader';
 import type { SupplementedLoaderContext } from './constants';
@@ -129,7 +129,7 @@ export class StyleXPlugin {
       nmf.hooks.createModule.tap(
         PLUGIN_NAME,
         (createData) => {
-          const modPath: string | undefined = createData.matchResource ?? createData.resourceResolveData?.path;
+          const modPath: string | false | undefined = createData.matchResource ?? createData.resourceResolveData?.path;
           if (modPath === VIRTUAL_CSS_PATH) {
             createData.settings ??= {};
             createData.settings.sideEffects = true;

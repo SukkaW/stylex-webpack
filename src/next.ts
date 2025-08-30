@@ -7,7 +7,11 @@ import type { NextConfig, WebpackConfigContext } from 'next/dist/server/config-s
 
 import { StyleXPlugin } from './index';
 import type { StyleXPluginOption } from './index';
-import type webpack from 'webpack';
+import type {
+  RuleSetUseItem as WebpackRuleSetUseItem,
+  Configuration as WebpackConfiguration,
+  RuleSetRule as WebpackRuleSetRule
+} from 'webpack';
 import { VIRTUAL_CSS_PATTERN } from './constants';
 
 import type { Processor as PostCSSProcessor } from 'postcss';
@@ -52,7 +56,7 @@ function getNextMiniCssExtractPlugin(isDev: boolean) {
 // Adopt from Next.js' getGlobalCssLoader
 // https://github.com/vercel/next.js/blob/d61b0761efae09bd9cb1201ff134ed8950d9deca/packages/next/src/build/webpack/config/blocks/css/loaders/global.ts#L7
 function getStyleXVirtualCssLoader(ctx: WebpackConfigContext, MiniCssExtractPlugin: typeof NextMiniCssExtractPlugin, postcss: () => Promise<any>) {
-  const loaders: webpack.RuleSetUseItem[] = [];
+  const loaders: WebpackRuleSetUseItem[] = [];
 
   // Adopt from Next.js' getClientStyleLoader
   // https://github.com/vercel/next.js/blob/56d35ede8ed2ab25fa8e29583d4e81e3e76a0e29/packages/next/src/build/webpack/config/blocks/css/loaders/global.ts#L7
@@ -88,7 +92,7 @@ function getStyleXVirtualCssLoader(ctx: WebpackConfigContext, MiniCssExtractPlug
 export function withStyleX(pluginOptions?: StyleXPluginOption) {
   return (nextConfig: NextConfig = {}): NextConfig => ({
     ...nextConfig,
-    webpack(config: webpack.Configuration & WebpackConfigurationContext, ctx: WebpackConfigContext) {
+    webpack(config: WebpackConfiguration & WebpackConfigurationContext, ctx: WebpackConfigContext) {
       if (typeof nextConfig.webpack === 'function') {
         config = nextConfig.webpack(config, ctx);
       }
@@ -123,7 +127,7 @@ export function withStyleX(pluginOptions?: StyleXPluginOption) {
                 && typeof setRule.test.test === 'function'
                 && setRule.test.test('filename.css')
             )
-        ) as webpack.RuleSetRule
+        ) as WebpackRuleSetRule
       ).oneOf;
       // Here we matches virtual css file emitted by StyleXPlugin
       cssRules?.unshift({

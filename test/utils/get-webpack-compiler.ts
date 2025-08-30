@@ -1,6 +1,6 @@
 import path from 'node:path';
 
-import webpack from 'webpack';
+import * as webpack from 'webpack';
 import { createFsFromVolume, Volume } from 'memfs';
 
 import pkgJson from '../../package.json';
@@ -11,6 +11,7 @@ import { StyleXPlugin } from '../../src';
 import type { StyleXPluginOption } from '../../src';
 
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import { nullthrow } from 'foxts/guard';
 
 export const externalModules = Object.keys(pkgJson.dependencies)
   .concat(Object.keys(pkgJson.peerDependencies))
@@ -104,7 +105,7 @@ export default (fixture: string, pluginOption?: StyleXPluginOption, config: webp
     ...config
   };
 
-  const compiler = webpack(fullConfig);
+  const compiler = nullthrow(webpack.webpack(fullConfig), 'missing webpack compiler');
   const fs = createFsFromVolume(new Volume()) as unknown as typeof import('fs');
 
   compiler.outputFileSystem = fs;
