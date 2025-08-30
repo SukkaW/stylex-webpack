@@ -2,17 +2,15 @@ import type * as webpack from 'webpack';
 import type { Rule as StyleXRule, Options as StyleXOptions } from '@stylexjs/babel-plugin';
 import type { StyleXLoaderOptions } from './stylex-loader';
 import type { SupplementedLoaderContext } from './constants';
-import type { CssModule } from 'mini-css-extract-plugin';
 import type { Buffer } from 'node:buffer';
 
-import { INCLUDE_REGEXP, PLUGIN_NAME, STYLEX_CHUNK_NAME, VIRTUAL_CSS_PATH, VIRTUAL_CSS_PATTERN } from './constants';
+import { INCLUDE_REGEXP, PLUGIN_NAME, STYLEX_CHUNK_NAME, VIRTUAL_CSS_PATH, VIRTUAL_ENTRYPOINT_CSS_PATTERN } from './constants';
 
 import stylexBabelPlugin from '@stylexjs/babel-plugin';
 import path from 'node:path';
 import process from 'node:process';
 
 const stylexLoaderPath = require.resolve('./stylex-loader');
-const stylexVirtualLoaderPath = require.resolve('./stylex-virtual-css-loader');
 
 type CSSTransformer = (css: string) => string | Buffer | Promise<string | Buffer>;
 export interface StyleXPluginOption {
@@ -113,7 +111,7 @@ export class StyleXPlugin {
     compiler.options.optimization.splitChunks.cacheGroups ??= {};
     compiler.options.optimization.splitChunks.cacheGroups[STYLEX_CHUNK_NAME] = {
       name: STYLEX_CHUNK_NAME,
-      test: VIRTUAL_CSS_PATTERN,
+      test: VIRTUAL_ENTRYPOINT_CSS_PATTERN,
       type: 'css/mini-extract',
       chunks: 'all',
       enforce: true
@@ -165,15 +163,6 @@ export class StyleXPlugin {
               type: null
             });
           }
-
-          if (VIRTUAL_CSS_PATTERN.test(mod.matchResource || mod.resource)) {
-            mod.loaders.push({
-              loader: stylexVirtualLoaderPath,
-              options: {},
-              ident: null,
-              type: null
-            });
-          }
         }
       );
 
@@ -190,30 +179,6 @@ export class StyleXPlugin {
 
           if (stylexChunk == null) {
             return;
-          }
-
-          // Collect stylex rules from module instead of self maintained map
-          if (this.loaderOption.nextjsMode) {
-            const cssModulesInStylexChunk = compilation.chunkGraph.getChunkModulesIterableBySourceType(stylexChunk, 'css/mini-extract');
-
-            // we only re-collect stylex rules if we can found css in the stylex chunk
-            if (cssModulesInStylexChunk) {
-              this.stylexRules.clear();
-
-              for (const cssModule of (cssModulesInStylexChunk as Iterable<CssModule>)) {
-                const stringifiedStylexRule = ((cssModule as any)._identifier as string).split('!').pop()?.split('?').pop();
-
-                if (!stringifiedStylexRule) {
-                  continue;
-                }
-
-                const params = new URLSearchParams(stringifiedStylexRule);
-                const stylex = params.get('stylex');
-                if (stylex != null) {
-                  this.stylexRules.set(cssModule.identifier(), JSON.parse(stylex));
-                }
-              }
-            }
           }
 
           // Let's find the css file that belongs to the stylex chunk
