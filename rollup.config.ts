@@ -34,19 +34,11 @@ export default defineConfig([{
     format: 'commonjs'
   },
   external,
-  plugins: [dts({ respectExternal: true })]
+  plugins: [dts({ respectExternal: false })]
 }, {
   input: 'src/stylex-loader.ts',
   output: {
     file: 'dist/stylex-loader.js',
-    format: 'commonjs'
-  },
-  plugins: [swc()],
-  external
-}, {
-  input: 'src/stylex-virtual-css-loader.ts',
-  output: {
-    file: 'dist/stylex-virtual-css-loader.js',
     format: 'commonjs'
   },
   plugins: [swc()],

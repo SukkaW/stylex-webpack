@@ -4,7 +4,7 @@ import type { StyleXLoaderOptions } from './stylex-loader';
 import type { SupplementedLoaderContext } from './constants';
 import type { Buffer } from 'node:buffer';
 
-import { INCLUDE_REGEXP, PLUGIN_NAME, STYLEX_CHUNK_NAME, VIRTUAL_CSS_PATH, VIRTUAL_ENTRYPOINT_CSS_PATTERN } from './constants';
+import { INCLUDE_REGEXP, PLUGIN_NAME, STYLEX_CHUNK_NAME, VIRTUAL_ENTRYPOINT_CSS_PATH, VIRTUAL_ENTRYPOINT_CSS_PATTERN } from './constants';
 
 import stylexBabelPlugin from '@stylexjs/babel-plugin';
 import path from 'node:path';
@@ -128,7 +128,7 @@ export class StyleXPlugin {
         PLUGIN_NAME,
         (createData) => {
           const modPath: string | false | undefined = createData.matchResource ?? createData.resourceResolveData?.path;
-          if (modPath === VIRTUAL_CSS_PATH) {
+          if (modPath === VIRTUAL_ENTRYPOINT_CSS_PATH) {
             createData.settings ??= {};
             createData.settings.sideEffects = true;
           }

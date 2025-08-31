@@ -25,7 +25,8 @@
     "./next": {
       "types": "./next/index.d.ts",
       "default": "./next/index.js"
-    }
+    },
+    "./stylex-entrypoint.css": "./dist/stylex-entrypoint.css"
   },
   "scripts": {
     "prebuild": "rimraf dist",
