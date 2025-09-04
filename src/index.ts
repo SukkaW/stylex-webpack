@@ -129,7 +129,6 @@ export class StyleXPlugin {
       compiler.options.optimization.splitChunks.cacheGroups[FUCK_NEXTJS_VIRTUAL_CARRIERCHUNK_NAME] = {
         name: FUCK_NEXTJS_VIRTUAL_CARRIERCHUNK_NAME,
         test: FUCK_NEXTJS_VIRTUAL_CARRIER_PATTERN,
-        type: 'css/mini-extract',
         chunks: 'all',
         enforce: true
       };
@@ -244,6 +243,10 @@ export class StyleXPlugin {
 
           const finalCss = await this.transformCss(stylexCSS);
 
+          /**
+           * Now we write final CSS to virtual module, which acts like `stylex-webpack/stylex.css` has been
+           * updated locally on the disk, and Next.js and webpack will have no choice but to update the global css
+           */
           this._virtualModuleInstance.writeModule(VIRTUAL_ENTRYPOINT_CSS_PATH, finalCss.toString());
         }
       );
