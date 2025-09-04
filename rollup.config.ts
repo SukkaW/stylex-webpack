@@ -22,7 +22,8 @@ export default defineConfig([{
     swc(),
     copy({
       targets: [
-        { src: 'src/stylex.virtual.css', dest: 'dist' }
+        { src: 'src/stylex.css', dest: 'dist' },
+        { src: 'src/stylex.fuck-nextjs.virtual-carrier.js', dest: 'dist' }
       ]
     })
   ],
@@ -34,7 +35,9 @@ export default defineConfig([{
     format: 'commonjs'
   },
   external,
-  plugins: [dts({ respectExternal: true })]
+  plugins: [dts({
+    respectExternal: false // has to be false otherwise rollup-plugin-dts will OOM and crash. The .d.ts looks OK after disable this
+  })]
 }, {
   input: 'src/stylex-loader.ts',
   output: {
@@ -44,9 +47,9 @@ export default defineConfig([{
   plugins: [swc()],
   external
 }, {
-  input: 'src/stylex-virtual-css-loader.ts',
+  input: 'src/stylex-fuck-nextjs-virtual-carrier-loader.ts',
   output: {
-    file: 'dist/stylex-virtual-css-loader.js',
+    file: 'dist/stylex-fuck-nextjs-virtual-carrier-loader.js',
     format: 'commonjs'
   },
   plugins: [swc()],
@@ -69,6 +72,10 @@ export default defineConfig([{
     file: 'dist/next.d.ts',
     format: 'commonjs'
   },
-  plugins: [dts()],
-  external
+  plugins: [dts({ respectExternal: true })],
+  external(id: string) {
+    const isExternal = external(id);
+    if (isExternal) return true;
+    return id === './index';
+  }
 }]);

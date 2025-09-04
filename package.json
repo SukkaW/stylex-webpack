@@ -25,7 +25,8 @@
     "./next": {
       "types": "./next/index.d.ts",
       "default": "./next/index.js"
-    }
+    },
+    "./stylex.css": "./dist/stylex.css"
   },
   "scripts": {
     "prebuild": "rimraf dist",
@@ -33,7 +34,7 @@
     "lint": "eslint --format=sukka .",
     "test": "mocha --require @swc-node/register test/index.ts",
     "test:update": "mocha --update --require @swc-node/register test/index.ts",
-    "prerelease": "npm run build && npm run lint",
+    "prerelease": "pnpm run build && pnpm run lint",
     "release": "bumpp -r --all --commit \"release: %s\" --tag \"%s\""
   },
   "keywords": [
@@ -48,49 +49,54 @@
   "author": "Sukka <https://skk.moe>",
   "license": "MIT",
   "dependencies": {
-    "@babel/core": "^7.26.0",
-    "@babel/plugin-syntax-jsx": "^7.25.9",
-    "@babel/plugin-syntax-typescript": "^7.25.9",
-    "@stylexjs/babel-plugin": "^0.9.3",
+    "@babel/core": "^7.28.3",
+    "@babel/plugin-syntax-jsx": "^7.27.1",
+    "@babel/plugin-syntax-typescript": "^7.27.1",
     "@types/webpack": "^5.28.5",
+    "foxts": "^3.12.0",
     "loader-utils": "^3.3.1",
-    "rollup": "^4.14.0"
+    "ts-dedent": "^2.2.0",
+    "webpack-virtual-modules": "^0.6.2"
   },
   "devDependencies": {
-    "@eslint-sukka/node": "^6.12.0",
-    "@swc-node/register": "^1.10.9",
-    "@swc/core": "^1.10.1",
+    "@eslint-sukka/node": "^6.23.1",
+    "@swc-node/register": "^1.11.1",
+    "@swc/core": "^1.13.5",
     "@types/babel__core": "^7.20.5",
-    "@types/chai": "^4.3.14",
-    "@types/loader-utils": "^2.0.6",
+    "@types/chai": "^4.3.20",
+    "@types/loader-utils": "^3.0.0",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^22.10.2",
-    "browserslist": "^4.24.3",
-    "bumpp": "^9.9.1",
-    "chai": "^4.4.1",
-    "css-loader": "^6.10.0",
-    "eslint": "^9.17.0",
-    "eslint-config-sukka": "^6.12.0",
-    "eslint-formatter-sukka": "^6.12.0",
-    "memfs": "^4.15.0",
-    "mini-css-extract-plugin": "^2.9.2",
-    "mocha": "^11.0.1",
-    "mocha-chai-jest-snapshot": "^1.1.6",
-    "next": "^15.1.0",
-    "postcss": "^8.4.49",
+    "@types/node": "^22.18.1",
+    "browserslist": "^4.25.4",
+    "bumpp": "^10.2.3",
+    "chai": "^4.5.0",
+    "css-loader": "^7.1.2",
+    "eslint": "^9.34.0",
+    "eslint-config-sukka": "^6.23.1",
+    "eslint-formatter-sukka": "^6.23.1",
+    "memfs": "^4.38.2",
+    "mini-css-extract-plugin": "^2.9.4",
+    "mocha": "^11.7.2",
+    "mocha-chai-jest-snapshot": "^1.1.7",
+    "next": "^15.5.2",
+    "postcss": "^8.5.6",
     "rimraf": "^6.0.1",
+    "rollup": "^4.50.0",
     "rollup-plugin-copy": "^3.5.0",
-    "rollup-plugin-dts": "^6.1.1",
+    "rollup-plugin-dts": "^6.2.3",
     "rollup-plugin-swc3": "^0.12.1",
     "swc-loader": "^0.2.6",
-    "typescript": "^5.7.2",
-    "webpack": "^5.97.1"
+    "typescript": "^5.9.2",
+    "webpack": "^5.101.3"
   },
   "peerDependencies": {
-    "@stylexjs/stylex": "*"
+    "@stylexjs/babel-plugin": "*"
   },
-  "packageManager": "pnpm@9.15.0",
-  "overrides": {
-    "chai": "$chai"
+  "packageManager": "pnpm@10.15.1",
+  "pnpm": {
+    "overrides": {
+      "chai": "$chai",
+      "eslint>chalk": "npm:picocolors@^1.1.1"
+    }
   }
 }
