@@ -52,11 +52,9 @@
     "@babel/core": "^7.28.3",
     "@babel/plugin-syntax-jsx": "^7.27.1",
     "@babel/plugin-syntax-typescript": "^7.27.1",
-    "@stylexjs/babel-plugin": "^0.9.3",
     "@types/webpack": "^5.28.5",
     "foxts": "^3.12.0",
     "loader-utils": "^3.3.1",
-    "rollup": "^4.50.0",
     "ts-dedent": "^2.2.0",
     "webpack-virtual-modules": "^0.6.2"
   },
@@ -66,9 +64,9 @@
     "@swc/core": "^1.13.5",
     "@types/babel__core": "^7.20.5",
     "@types/chai": "^4.3.20",
-    "@types/loader-utils": "^2.0.6",
+    "@types/loader-utils": "^3.0.0",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^22.18.0",
+    "@types/node": "^22.18.1",
     "browserslist": "^4.25.4",
     "bumpp": "^10.2.3",
     "chai": "^4.5.0",
@@ -78,11 +76,12 @@
     "eslint-formatter-sukka": "^6.23.1",
     "memfs": "^4.38.2",
     "mini-css-extract-plugin": "^2.9.4",
-    "mocha": "^11.7.1",
+    "mocha": "^11.7.2",
     "mocha-chai-jest-snapshot": "^1.1.7",
     "next": "^15.5.2",
     "postcss": "^8.5.6",
     "rimraf": "^6.0.1",
+    "rollup": "^4.50.0",
     "rollup-plugin-copy": "^3.5.0",
     "rollup-plugin-dts": "^6.2.3",
     "rollup-plugin-swc3": "^0.12.1",
@@ -91,9 +90,9 @@
     "webpack": "^5.101.3"
   },
   "peerDependencies": {
-    "@stylexjs/stylex": "*"
+    "@stylexjs/babel-plugin": "*"
   },
-  "packageManager": "pnpm@10.15.0",
+  "packageManager": "pnpm@10.15.1",
   "pnpm": {
     "overrides": {
       "chai": "$chai",
