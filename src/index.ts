@@ -233,8 +233,6 @@ export class StyleXPlugin {
             }
           }
 
-          console.log({ rulesFromLen: this.stylexRules.size, rulesFrom: Array.from(this.stylexRules.keys()) });
-
           const stylexCSS = getStyleXRules(this.stylexRules, this.useCSSLayers);
 
           if (stylexCSS == null) {
