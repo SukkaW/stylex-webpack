@@ -5,6 +5,4 @@
  *
  * During bundling, the stylex webpack plugin will replace content with generated CSS
  */
-.__stylex_entrypoint__ {
-  content: 'noop';
-}
+.__stylex_entrypoint__ {}

@@ -1,11 +1,11 @@
 export const PLUGIN_NAME = 'stylex';
-export const VIRTUAL_ENTRYPOINT_CSS_PATH: string = require.resolve('./stylex-entrypoint.css');
-export const VIRTUAL_ENTRYPOINT_CSS_PATTERN = /stylex-entrypoint\.css/;
+export const VIRTUAL_ENTRYPOINT_CSS_PATH: string = require.resolve('./stylex.css');
+export const VIRTUAL_ENTRYPOINT_CSS_PATTERN = /stylex\.css/;
 export const STYLEX_CHUNK_NAME = '_stylex-webpack-generated';
 
-export const VIRTUAL_FUCK_NEXTJS_CSS_PATH: string = require.resolve('./stylex.fuck-nextjs.virtual.css');
-export const VIRTUAL_FUCK_NEXTJS_CSS_PATTERN = /stylex\.fuck-nextjs\.virtual\.css/;
-export const FUCK_NEXTJS_CHUNK_NAME = '_stylex-fuck-nextjs-collect-stylex-rules';
+export const FUCK_NEXTJS_VIRTUAL_CARRIER_PATH: string = require.resolve('./stylex.fuck-nextjs.virtual-carrier.js');
+export const FUCK_NEXTJS_VIRTUAL_CARRIER_PATTERN = /stylex\.fuck-nextjs\.virtual-carrier\.js/;
+export const FUCK_NEXTJS_VIRTUAL_CARRIERCHUNK_NAME = '_stylex-fuck-nextjs-collect-stylex-rules';
 
 export const INCLUDE_REGEXP = /\.[cm]?[jt]sx?$/;
 

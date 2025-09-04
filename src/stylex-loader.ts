@@ -2,7 +2,7 @@ import type { LoaderContext as WebpackLoaderContext } from 'webpack';
 import { transformAsync as babelTransformAsync } from '@babel/core';
 import stylexBabelPlugin from '@stylexjs/babel-plugin';
 import type { Options as StyleXOptions } from '@stylexjs/babel-plugin';
-import { isSupplementedLoaderContext, VIRTUAL_FUCK_NEXTJS_CSS_PATH } from './constants';
+import { isSupplementedLoaderContext, FUCK_NEXTJS_VIRTUAL_CARRIER_PATH } from './constants';
 import { stringifyRequest } from './lib/stringify-request';
 
 const PLUGIN_NAME = 'stylex';
@@ -83,7 +83,7 @@ export default async function stylexLoader(this: WebpackLoaderContext<StyleXLoad
 
       const virtualCssRequest = stringifyRequest(
         this,
-        `${VIRTUAL_FUCK_NEXTJS_CSS_PATH}?${urlParams.toString()}`
+        `${FUCK_NEXTJS_VIRTUAL_CARRIER_PATH}?${urlParams.toString()}`
       );
       const postfix = `\nimport ${virtualCssRequest};`;
 

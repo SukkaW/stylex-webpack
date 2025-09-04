@@ -22,8 +22,8 @@ export default defineConfig([{
     swc(),
     copy({
       targets: [
-        { src: 'src/stylex-entrypoint.css', dest: 'dist' },
-        { src: 'src/stylex.fuck-nextjs.virtual.css', dest: 'dist' }
+        { src: 'src/stylex.css', dest: 'dist' },
+        { src: 'src/stylex.fuck-nextjs.virtual-carrier.js', dest: 'dist' }
       ]
     })
   ],
@@ -45,9 +45,9 @@ export default defineConfig([{
   plugins: [swc()],
   external
 }, {
-  input: 'src/stylex-fuck-nextjs-loader.ts',
+  input: 'src/stylex-fuck-nextjs-virtual-carrier-loader.ts',
   output: {
-    file: 'dist/stylex-fuck-nextjs-loader.js',
+    file: 'dist/stylex-fuck-nextjs-virtual-carrier-loader.js',
     format: 'commonjs'
   },
   plugins: [swc()],
