@@ -35,7 +35,9 @@ export default defineConfig([{
     format: 'commonjs'
   },
   external,
-  plugins: [dts({ respectExternal: false })]
+  plugins: [dts({
+    respectExternal: false // has to be false otherwise rollup-plugin-dts will OOM and crash. The .d.ts looks OK after disable this
+  })]
 }, {
   input: 'src/stylex-loader.ts',
   output: {
@@ -70,6 +72,10 @@ export default defineConfig([{
     file: 'dist/next.d.ts',
     format: 'commonjs'
   },
-  plugins: [dts()],
-  external
+  plugins: [dts({ respectExternal: true })],
+  external(id: string) {
+    const isExternal = external(id);
+    if (isExternal) return true;
+    return id === './index';
+  }
 }]);
