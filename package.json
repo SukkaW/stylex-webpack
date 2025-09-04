@@ -34,7 +34,7 @@
     "lint": "eslint --format=sukka .",
     "test": "mocha --require @swc-node/register test/index.ts",
     "test:update": "mocha --update --require @swc-node/register test/index.ts",
-    "prerelease": "npm run build && npm run lint",
+    "prerelease": "pnpm run build && pnpm run lint",
     "release": "bumpp -r --all --commit \"release: %s\" --tag \"%s\""
   },
   "keywords": [
