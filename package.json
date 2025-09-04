@@ -32,7 +32,7 @@
     "prebuild": "rimraf dist",
     "build": "rollup -c rollup.config.ts --configPlugin swc3 --bundleConfigAsCjs",
     "lint": "eslint --format=sukka .",
-    "test": "mocha --require @swc-node/register test/index.ts",
+    "test": "mocha --require @swc-node/register --require mocha-expect-snapshot test/index.ts",
     "test:update": "mocha --update --require @swc-node/register test/index.ts",
     "prerelease": "pnpm run build && pnpm run lint",
     "release": "bumpp -r --all --commit \"release: %s\" --tag \"%s\""
@@ -63,21 +63,20 @@
     "@swc-node/register": "^1.11.1",
     "@swc/core": "^1.13.5",
     "@types/babel__core": "^7.20.5",
-    "@types/chai": "^4.3.20",
     "@types/loader-utils": "^3.0.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.18.1",
     "browserslist": "^4.25.4",
     "bumpp": "^10.2.3",
-    "chai": "^4.5.0",
     "css-loader": "^7.1.2",
     "eslint": "^9.34.0",
     "eslint-config-sukka": "^6.23.1",
     "eslint-formatter-sukka": "^6.23.1",
+    "expect": "^30.1.2",
     "memfs": "^4.38.2",
     "mini-css-extract-plugin": "^2.9.4",
     "mocha": "^11.7.2",
-    "mocha-chai-jest-snapshot": "^1.1.7",
+    "mocha-expect-snapshot": "^8.0.0",
     "next": "^15.5.2",
     "postcss": "^8.5.6",
     "rimraf": "^6.0.1",
@@ -95,7 +94,6 @@
   "packageManager": "pnpm@10.15.1",
   "pnpm": {
     "overrides": {
-      "chai": "$chai",
       "eslint>chalk": "npm:picocolors@^1.1.1"
     }
   }

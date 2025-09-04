@@ -1,4 +1,4 @@
-import stylex from '@stylexjs/stylex';
+import * as stylex from '@stylexjs/stylex';
 
 const fadeAnimation = stylex.keyframes({
   '0%': {
@@ -23,5 +23,5 @@ const styles = stylex.create({
 });
 
 export default function App() {
-  return stylex(styles.foo);
+  return stylex.props(styles.foo);
 }

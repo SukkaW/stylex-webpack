@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`stylex-webpack (webpack) should work: simple.js 1`] = `
+"import * as stylex from '@stylexjs/stylex';
+const fadeAnimation = "xgnty7z-B";
+export default function App() {
+  return {
+    className: "xeuoslp x78zum5 x1hm9lzh xlrshdv x1egiwwb x1oz5o6v"
+  };
+}"
+`;
