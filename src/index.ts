@@ -1,5 +1,5 @@
-import type * as webpack from 'webpack';
 import type { Rule as StyleXRule, Options as StyleXOptions } from '@stylexjs/babel-plugin';
+import type * as webpack from 'webpack';
 import type { StyleXLoaderOptions } from './stylex-loader';
 import type { SupplementedLoaderContext } from './constants';
 import type { Buffer } from 'node:buffer';
@@ -10,6 +10,8 @@ import stylexBabelPlugin from '@stylexjs/babel-plugin';
 import path from 'node:path';
 import process from 'node:process';
 import type { CssModule } from 'mini-css-extract-plugin';
+
+import VirtualModulesPlugin from 'webpack-virtual-modules';
 
 const stylexLoaderPath = require.resolve('./stylex-loader');
 const stylexVirtualLoaderPath = require.resolve('./stylex-fuck-nextjs-loader');
@@ -75,6 +77,8 @@ export class StyleXPlugin {
 
   transformCss: CSSTransformer;
 
+  private readonly _virtualModuleInstance = new VirtualModulesPlugin();
+
   constructor({
     stylexImports = ['stylex', '@stylexjs/stylex'],
     useCSSLayers = false,
@@ -109,6 +113,8 @@ export class StyleXPlugin {
         ].join(' ')
       );
     }
+
+    this._virtualModuleInstance.apply(compiler as any);
 
     compiler.options.optimization.splitChunks.cacheGroups ??= {};
     compiler.options.optimization.splitChunks.cacheGroups[STYLEX_CHUNK_NAME] = {
@@ -148,8 +154,8 @@ export class StyleXPlugin {
       );
     });
 
-    const { Compilation, NormalModule, sources } = compiler.webpack;
-    const { RawSource } = sources;
+    const { Compilation, NormalModule } = compiler.webpack;
+    // const { RawSource } = sources;
 
     // Apply loader to JS modules
     compiler.hooks.make.tap(PLUGIN_NAME, (compilation) => {
@@ -190,13 +196,7 @@ export class StyleXPlugin {
           name: PLUGIN_NAME,
           stage: Compilation.PROCESS_ASSETS_STAGE_PRE_PROCESS
         },
-        async (assets) => {
-          const stylexChunk = compilation.namedChunks.get(STYLEX_CHUNK_NAME);
-
-          if (stylexChunk == null) {
-            return;
-          }
-
+        async (_) => {
           if (this.loaderOption.nextjsMode) {
             // Collect stylex rules from module instead of self maintained map
             // on previous step, we create a "stylex" chunk to hold all virtual stylex css
@@ -232,17 +232,6 @@ export class StyleXPlugin {
             }
           }
 
-          // Let's find the css file that belongs to the stylex chunk
-          const cssAssetName = Object.keys(assets).filter((assetName) => stylexChunk.files.has(assetName) && assetName.endsWith('.css'));
-
-          if (cssAssetName.length === 0) {
-            return;
-          }
-          if (cssAssetName.length > 1) {
-            console.warn('[stylex-webpack] Multiple CSS assets found for the stylex chunk. This should not happen. Please report this issue.');
-          }
-          const stylexAssetName = cssAssetName[0];
-
           console.log({ rulesFromLen: this.stylexRules.size, rulesFrom: Array.from(this.stylexRules.keys()) });
 
           const stylexCSS = getStyleXRules(this.stylexRules, this.useCSSLayers);
@@ -253,13 +242,7 @@ export class StyleXPlugin {
 
           const finalCss = await this.transformCss(stylexCSS);
 
-          compilation.updateAsset(
-            stylexAssetName /** cssFileName */,
-            new RawSource(finalCss),
-            {
-              minimized: true
-            }
-          );
+          this._virtualModuleInstance.writeModule(VIRTUAL_ENTRYPOINT_CSS_PATH, finalCss.toString());
         }
       );
     });

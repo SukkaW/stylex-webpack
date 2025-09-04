@@ -39,6 +39,9 @@ importers:
       rollup:
         specifier: ^4.50.0
         version: 4.50.0
+      webpack-virtual-modules:
+        specifier: ^0.6.2
+        version: 0.6.2
     devDependencies:
       '@eslint-sukka/node':
         specifier: ^6.23.1
@@ -2877,6 +2880,9 @@ packages:
   webpack-sources@3.3.3:
     resolution: {integrity: sha512-yd1RBzSGanHkitROoPFd6qsrxt+oFhg/129YzheDGqeustzX0vTZJZsSsQjVQC4yzBQ56K55XU8gaNCtIzOnTg==}
     engines: {node: '>=10.13.0'}
+
+  webpack-virtual-modules@0.6.2:
+    resolution: {integrity: sha512-66/V2i5hQanC51vBQKPH4aI8NMAcBW59FVBs+rC7eGHupMyfn34q7rZIE+ETlJ+XTevqfUhVVBgSUNSW2flEUQ==}
 
   webpack@5.101.3:
     resolution: {integrity: sha512-7b0dTKR3Ed//AD/6kkx/o7duS8H3f1a4w3BYpIriX4BzIhjkn4teo05cptsxvLesHFKK5KObnadmCHBwGc+51A==}
@@ -5872,6 +5878,8 @@ snapshots:
       graceful-fs: 4.2.11
 
   webpack-sources@3.3.3: {}
+
+  webpack-virtual-modules@0.6.2: {}
 
   webpack@5.101.3(@swc/core@1.13.5):
     dependencies:
