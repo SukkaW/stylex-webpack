@@ -1,29 +1,42 @@
 # stylex-webpack
 
-[First introduced by Frank Yan at React Conf 2020](https://www.youtube.com/watch?v=9JZHodNR184), [StyleX](https://stylexjs.com/) framework agnostic CSS-in-JS system with near-zero runtime, ahead-of-time compiler, atomic CSS extraction that powers Facebook and Instagram.
+[First introduced by Frank Yan at React Conf 2020](https://www.youtube.com/watch?v=9JZHodNR184), [StyleX](https://stylexjs.com/) framework agnostic CSS-in-JS system with near-zero runtime, ahead-of-time compiler, atomic CSS extraction that powers Facebook and Instagram. `stylex-webpack` is a webpack and Next.js plugin for StyleX.
 
 ## Motivation
 
-stylex offers a CSS-in-JS compiler, allowing you to write CSS in your JavaScript/JSX/TSX. However, unlike other CSS-in-JS solutions that gather and process styles within the browser, stylex will read your source code, collect your style and transform your JS/JSX/TSX, stripping runtime calls as much as possible (making the value of `className` a static string literal), and output CSS elsewhere.
+StyleX offers a CSS-in-JS compiler, allowing you to write CSS in your JavaScript/JSX/TSX. However, unlike other CSS-in-JS solutions that gather and process styles within the browser, StyleX will read your source code, collect your style and transform your JS/JSX/TSX, stripping runtime calls as much as possible (making the value of `className` a static string literal), and output the minimum required CSS elsewhere.
 
-StyleX does provide a webpack plugin. Under the hood, it will traverse through the source code, collect styles, and emit a new CSS asset during the webpack compilation. However, it does come with some limitations:
+StyleX does provide an official webpack plugin. Under the hood, it will traverse through the source code, collect styles, and emit a new CSS asset during the webpack compilation. However, it does come with some limitations:
 
 - StyleX's official Next.js setup requires a `.babelrc` file, which disables Next.js' built-in SWC compiler.
 - StyleX's official Next.js plugin requires a CSS asset to pre-exist so that it can append the extracted CSS to it.
 
-I start this project as a Proof of Concept, to see if it is possible to make a webpack plugin for ststylex that doesn't disable Next.js' SWC compiler. I have already made [a similar webpack plugin for style9](https://github.com/sukkaw/style9-webpack), which is also an AoT atomic CSS-in-JS system that is inspired by StyleX.
+I start this project as a Proof of Concept, to see if it is possible to make a webpack plugin for StyleX that doesn't disable Next.js' SWC compiler. I have already made [a similar webpack plugin for style9](https://github.com/sukkaw/style9-webpack), which is also an AoT atomic CSS-in-JS system that is inspired by StyleX.
 
-Unlike stylex's official webpack plugin, `stylex-webpack` requires you have setup `css-loader` and `MiniCssExtractPlugin` in your webpack configuration, just like your normal CSS based webpack project. `stylex-webpack`'s built-in loader will generate a virtual CSS import containing a dummy CSS rule. This allows the `MiniCssExtractPlugin` to collect those virtual CSS imports and emit a CSS asset, which `stylex-webpack` will later inject the actual extracted CSS into at the `processAssets` stage.
+Unlike StyleX's official webpack plugin, `stylex-webpack` requires you have setup `css-loader` and `MiniCssExtractPlugin` in your webpack configuration, or enables webpack's built-in CSS feature (as the time of writing this, it is still experimental, but it would become stable on webpack 6 or newer), just like your traditional CSS based webpack project. You will also have to import a virtual (dummy) CSS at the entrypoint of your App (for Next.js it is either `app/layout.tsx` for App Router or `pages/_app.tsx` for Pages Router). This allows the those webpack css solutions to collect the virtual CSS imports and emit a CSS asset, which `stylex-webpack` will later replace the dummy CSS with the actual generated CSS during webpack's `processAssets` stage.
 
 ## Installation
 
 ```sh
 # npm
-npm i stylex-webpack
+npm i stylex-webpack @stylexjs/babel-plugin
 # Yarn
-yarn add stylex-webpack
+yarn add stylex-webpack @stylexjs/babel-plugin
 # pnpm
-pnpm add stylex-webpack
+pnpm add stylex-webpack @stylexjs/babel-plugin
+```
+
+`@stylexjs/babel-plugin` is declared as a mandatory peer dependency. But we still recommend you install it directly in your project to specify the version you want to use.
+
+Also you will most likely need to install `@stylexjs/stylex` as well if you haven't already:
+
+```sh
+# npm
+npm i @stylexjs/stylex
+# Yarn
+yarn add @stylexjs/stylex
+# pnpm
+pnpm add @stylexjs/stylex
 ```
 
 ## Usage
@@ -58,6 +71,12 @@ module.exports = {
 };
 ```
 
+Then import `stylex-webpack/stylex.css` inside the entry point of your App (something like `App.tsx`, `index.tsx`, etc.):
+
+```js
+import 'stylex-webpack/stylex.css';
+```
+
 ### Next.js
 
 ```js
@@ -70,6 +89,12 @@ module.exports = withStyleX({
   // Your Next.js config goes here.
   reactStrictMode: true
 });
+```
+
+Then import `stylex-webpack/stylex.css` inside the entry point of your Next.js App, as if you are importing a global CSS file. For Next.js App Router, your app entry point would be the root layout file (e.g. `app/layout.tsx`). For Next.js Pages Router, your app entry point would be the `_app` file (e.g. `pages/_app.tsx`).
+
+```tsx
+import 'stylex-webpack/stylex.css';
 ```
 
 ## Options
@@ -117,6 +142,7 @@ new StyleXPlugin({
      *
      * https://github.com/facebook/stylex/issues/455
      * https://github.com/facebook/stylex/issues/517
+     * https://github.com/facebook/stylex/issues/1157
      *
      * For now, it is recommended to use postcss-sort-media-queries as a workaround.
      */
