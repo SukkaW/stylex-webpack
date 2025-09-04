@@ -2,7 +2,8 @@ import type { LoaderContext as WebpackLoaderContext } from 'webpack';
 import { transformAsync as babelTransformAsync } from '@babel/core';
 import stylexBabelPlugin from '@stylexjs/babel-plugin';
 import type { Options as StyleXOptions } from '@stylexjs/babel-plugin';
-import { isSupplementedLoaderContext } from './constants';
+import { isSupplementedLoaderContext, VIRTUAL_FUCK_NEXTJS_CSS_PATH } from './constants';
+import { stringifyRequest } from './lib/stringify-request';
 
 const PLUGIN_NAME = 'stylex';
 
@@ -16,7 +17,8 @@ export default async function stylexLoader(this: WebpackLoaderContext<StyleXLoad
   const callback = this.async();
   const {
     stylexImports,
-    stylexOption
+    stylexOption,
+    nextjsMode
   } = this.getOptions();
 
   // bail out early if the input doesn't contain stylex imports
@@ -70,6 +72,23 @@ export default async function stylexLoader(this: WebpackLoaderContext<StyleXLoad
       this.resourcePath,
       metadata.stylex as any
     );
+
+    if (nextjsMode) {
+      // Next.js App Router doesn't support inline matchResource and inline loaders
+      // So we adapt Next.js' "external" css import approach instead
+      const urlParams = new URLSearchParams({
+        from: this.resourcePath,
+        stylex: JSON.stringify(metadata.stylex) // color: #fff is not url safe, let's get through JSON.stringify
+      });
+
+      const virtualCssRequest = stringifyRequest(
+        this,
+        `${VIRTUAL_FUCK_NEXTJS_CSS_PATH}?${urlParams.toString()}`
+      );
+      const postfix = `\nimport ${virtualCssRequest};`;
+
+      return callback(null, code + postfix, map ?? undefined);
+    }
 
     return callback(null, code ?? undefined, map ?? undefined);
   } catch (error) {

@@ -1,0 +1,11 @@
+/*
+ * This is a noop file specifically for Next.js app dir
+ *
+ * This has to be an actual file as webpack requires a file to exist on disk
+ *
+ * Due to how stupidly Next.js handles CSS on server and client, we need this to collect real stylex rules
+ * Blame Next.js for its stupidity
+ */
+.__stylex_fuck_nextjs__ {
+  content: 'noop';
+}
