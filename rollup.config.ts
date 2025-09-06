@@ -2,6 +2,7 @@ import { defineConfig } from 'rollup';
 import { swc } from 'rollup-plugin-swc3';
 import { dts } from 'rollup-plugin-dts';
 import copy from 'rollup-plugin-copy';
+import json from '@rollup/plugin-json';
 
 import pkgJson from './package.json';
 import { builtinModules } from 'node:module';
@@ -19,6 +20,7 @@ export default defineConfig([{
     format: 'commonjs'
   },
   plugins: [
+    json(),
     swc(),
     copy({
       targets: [

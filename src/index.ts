@@ -1,3 +1,5 @@
+import { version as packageVersion } from '../package.json';
+
 import type { Rule as StyleXRule, Options as StyleXOptions } from '@stylexjs/babel-plugin';
 import type * as webpack from 'webpack';
 import type { StyleXLoaderOptions } from './stylex-loader';
@@ -155,9 +157,19 @@ export class StyleXPlugin {
 
     const { Compilation, NormalModule } = compiler.webpack;
     // const { RawSource } = sources;
+    const meta = JSON.stringify({
+      name: 'stylex-webpack',
+      packageVersion,
+      opt: this.loaderOption
+    });
 
     // Apply loader to JS modules
     compiler.hooks.make.tap(PLUGIN_NAME, (compilation) => {
+      compilation.hooks.chunkHash.tap(
+        PLUGIN_NAME,
+        (_, hash) => hash.update(meta)
+      );
+
       NormalModule.getCompilationHooks(compilation).loader.tap(
         PLUGIN_NAME,
         (loaderContext, mod) => {
