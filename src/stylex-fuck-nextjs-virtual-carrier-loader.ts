@@ -21,7 +21,7 @@ export default function (this: LoaderContext<unknown>, inputCode: string, inputS
 
     const code = dedent`
       /** stylex rules: ${stylex} */
-      export default ${JSON.stringify('stylex-webpack-fuck-nextjs-' + hash)};
+      .stylex-fuck-nextjs-${hash} {}
     `;
 
     callback(null, inputCode + '\n' + code);

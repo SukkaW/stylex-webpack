@@ -130,6 +130,7 @@ export class StyleXPlugin {
       compiler.options.optimization.splitChunks.cacheGroups[FUCK_NEXTJS_VIRTUAL_CARRIERCHUNK_NAME] = {
         name: FUCK_NEXTJS_VIRTUAL_CARRIERCHUNK_NAME,
         test: FUCK_NEXTJS_VIRTUAL_CARRIER_PATTERN,
+        type: 'css/mini-extract',
         chunks: 'all',
         enforce: true
       };

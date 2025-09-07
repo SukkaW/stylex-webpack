@@ -25,7 +25,7 @@ export default defineConfig([{
     copy({
       targets: [
         { src: 'src/stylex.css', dest: 'dist' },
-        { src: 'src/stylex.fuck-nextjs.virtual-carrier.js', dest: 'dist' }
+        { src: 'src/stylex.fuck-nextjs.virtual-carrier.css', dest: 'dist' }
       ]
     })
   ],
