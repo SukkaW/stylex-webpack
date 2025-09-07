@@ -14,6 +14,7 @@ import process from 'node:process';
 import type { CssModule } from 'mini-css-extract-plugin';
 
 import VirtualModulesPlugin from 'webpack-virtual-modules';
+import { identity } from 'foxts/identity';
 
 const stylexLoaderPath = require.resolve('./stylex-loader');
 const fuckNextjsVirtualLoaderPath = require.resolve('./stylex-fuck-nextjs-virtual-carrier-loader');
@@ -67,8 +68,6 @@ function getStyleXRules(stylexRules: Map<string, readonly StyleXRule[]>, useCSSL
   );
 }
 
-const identityTransfrom: CSSTransformer = css => css;
-
 export type RegisterStyleXRules = (resourcePath: string, stylexRules: StyleXRule[]) => void;
 
 export class StyleXPlugin {
@@ -86,7 +85,7 @@ export class StyleXPlugin {
     useCSSLayers = false,
     stylexOption = {},
     nextjsMode = false,
-    transformCss = identityTransfrom
+    transformCss = identity satisfies CSSTransformer
   }: StyleXPluginOption = {}) {
     this.useCSSLayers = useCSSLayers;
     this.loaderOption = {
@@ -116,7 +115,7 @@ export class StyleXPlugin {
       );
     }
 
-    this._virtualModuleInstance.apply(compiler as any);
+    this._virtualModuleInstance.apply(compiler);
 
     compiler.options.optimization.splitChunks.cacheGroups ??= {};
     compiler.options.optimization.splitChunks.cacheGroups[STYLEX_CHUNK_NAME] = {
@@ -223,8 +222,6 @@ export class StyleXPlugin {
 
               // we only re-collect stylex rules if we can found css in the stylex chunk
               if (cssModulesInFuckNextjsChunk) {
-                this.stylexRules.clear();
-
                 for (const cssModule of (cssModulesInFuckNextjsChunk as Iterable<CssModule>)) {
                   if (!('_identifier' in cssModule) || typeof cssModule._identifier !== 'string') {
                     continue;
@@ -263,22 +260,27 @@ export class StyleXPlugin {
             this._virtualModuleInstance.writeModule(VIRTUAL_ENTRYPOINT_CSS_PATH, finalCss.toString());
           } else {
             const stylexChunk = compilation.namedChunks.get(STYLEX_CHUNK_NAME);
+            console.log({ rulesFrom: Array.from(this.stylexRules.keys()), mode: compiler.options.mode, stylexChunk, asssets: Object.keys(assets) });
+
             if (!stylexChunk) return;
 
             // Let's find the css file that belongs to the stylex chunk
-            const cssAssetNames = Object.keys(assets).filter((assetName) => stylexChunk.files.has(assetName) && assetName.endsWith('.css'));
+            const stylexChunkCssAssetNames = Object.keys(assets).filter((assetName) => stylexChunk.files.has(assetName) && assetName.endsWith('.css'));
 
-            if (cssAssetNames.length === 0) {
+            if (stylexChunkCssAssetNames.length === 0) {
               return;
             }
-            if (cssAssetNames.length > 1) {
+            if (stylexChunkCssAssetNames.length > 1) {
               console.warn('[stylex-webpack] Multiple CSS assets found for the stylex chunk. This should not happen. Please report this issue.');
             }
-            const stylexAsset = cssAssetNames[0];
+
+            const stylexAssetName = stylexChunkCssAssetNames[0];
+            console.log({ finalCss, stylexAssetName });
 
             compilation.updateAsset(
-              stylexAsset /** cssFileName */,
-              new RawSource(finalCss)
+              stylexAssetName,
+              () => new RawSource(finalCss),
+              { minimized: false }
             );
           }
         }
