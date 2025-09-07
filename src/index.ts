@@ -241,6 +241,15 @@ export class StyleXPlugin {
                   }
                 }
               }
+
+              // Let's find the css file that belongs to the fuck-next.js chunk to remove it
+              const fuckNextjsChunkCssAssetNames = Object.keys(assets).filter((assetName) => fuckNextjsChunk.files.has(assetName) && assetName.endsWith('.css'));
+
+              if (fuckNextjsChunkCssAssetNames.length > 0) {
+                for (const assetName of fuckNextjsChunkCssAssetNames) {
+                  compilation.deleteAsset(assetName);
+                }
+              }
             }
           }
 
@@ -261,7 +270,6 @@ export class StyleXPlugin {
             this._virtualModuleInstance.writeModule(VIRTUAL_ENTRYPOINT_CSS_PATH, finalCss.toString());
           } else {
             const stylexChunk = compilation.namedChunks.get(STYLEX_CHUNK_NAME);
-            console.log({ rulesFrom: Array.from(this.stylexRules.keys()), mode: compiler.options.mode, stylexChunk, asssets: Object.keys(assets) });
 
             if (!stylexChunk) return;
 
@@ -276,7 +284,6 @@ export class StyleXPlugin {
             }
 
             const stylexAssetName = stylexChunkCssAssetNames[0];
-            console.log({ finalCss, stylexAssetName });
 
             compilation.updateAsset(
               stylexAssetName,
