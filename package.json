@@ -49,39 +49,39 @@
   "author": "Sukka <https://skk.moe>",
   "license": "MIT",
   "dependencies": {
-    "@babel/core": "^7.28.3",
+    "@babel/core": "^7.28.4",
     "@babel/plugin-syntax-jsx": "^7.27.1",
     "@babel/plugin-syntax-typescript": "^7.27.1",
     "@types/webpack": "^5.28.5",
-    "foxts": "^3.12.0",
+    "foxts": "^3.13.0",
     "loader-utils": "^3.3.1",
     "ts-dedent": "^2.2.0",
     "webpack-virtual-modules": "^0.6.2"
   },
   "devDependencies": {
-    "@eslint-sukka/node": "^6.23.1",
+    "@eslint-sukka/node": "^7.0.2",
     "@rollup/plugin-json": "^6.1.0",
     "@swc-node/register": "^1.11.1",
     "@swc/core": "^1.13.5",
     "@types/babel__core": "^7.20.5",
     "@types/loader-utils": "^3.0.0",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^22.18.1",
-    "browserslist": "^4.25.4",
+    "@types/node": "^22.18.3",
+    "browserslist": "^4.26.0",
     "bumpp": "^10.2.3",
     "css-loader": "^7.1.2",
-    "eslint": "^9.34.0",
-    "eslint-config-sukka": "^6.23.1",
-    "eslint-formatter-sukka": "^6.23.1",
+    "eslint": "^9.35.0",
+    "eslint-config-sukka": "^7.0.2",
+    "eslint-formatter-sukka": "^7.0.2",
     "expect": "^30.1.2",
-    "memfs": "^4.38.2",
+    "memfs": "^4.39.0",
     "mini-css-extract-plugin": "^2.9.4",
     "mocha": "^11.7.2",
     "mocha-expect-snapshot": "^8.0.0",
-    "next": "^15.5.2",
+    "next": "^15.5.3",
     "postcss": "^8.5.6",
     "rimraf": "^6.0.1",
-    "rollup": "^4.50.0",
+    "rollup": "^4.50.1",
     "rollup-plugin-copy": "^3.5.0",
     "rollup-plugin-dts": "^6.2.3",
     "rollup-plugin-swc3": "^0.12.1",
@@ -92,10 +92,13 @@
   "peerDependencies": {
     "@stylexjs/babel-plugin": "*"
   },
-  "packageManager": "pnpm@10.15.1",
+  "packageManager": "pnpm@10.16.0",
   "pnpm": {
     "overrides": {
       "eslint>chalk": "npm:picocolors@^1.1.1"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "oxc-resolver"
+    ]
   }
 }
