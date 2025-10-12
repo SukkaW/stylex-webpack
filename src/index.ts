@@ -45,6 +45,12 @@ export interface StyleXPluginOption {
    * @default false
    */
   nextjsMode?: boolean,
+  /**
+   * Next.js App Router Mode
+   *
+   * @default false
+   */
+  nextjsAppRouterMode?: boolean,
 
   /**
    * Enable other CSS transformation
@@ -85,6 +91,7 @@ export class StyleXPlugin {
     useCSSLayers = false,
     stylexOption = {},
     nextjsMode = false,
+    nextjsAppRouterMode = false,
     transformCss = identity satisfies CSSTransformer
   }: StyleXPluginOption = {}) {
     this.useCSSLayers = useCSSLayers;
@@ -99,7 +106,8 @@ export class StyleXPlugin {
         importSources: stylexImports,
         ...stylexOption
       },
-      nextjsMode
+      nextjsMode,
+      nextjsAppRouterMode
     };
     this.transformCss = transformCss;
   }
@@ -261,7 +269,7 @@ export class StyleXPlugin {
 
           const finalCss = await this.transformCss(stylexCSS);
 
-          if (compiler.options.mode === 'development') {
+          if (compiler.options.mode === 'development' && this.loaderOption.nextjsAppRouterMode) {
             // In development mode, a.k.a. HMR
             /**
              * Now we write final CSS to virtual module, which acts like `stylex-webpack/stylex.css` has been

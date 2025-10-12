@@ -189,8 +189,6 @@ export function withStyleX(pluginOptions?: StyleXPluginOption) {
           ...pluginOptions?.stylexOption,
           dev: ctx.dev
         },
-        // Enforce nextjsMode to true
-        nextjsMode: true,
         async transformCss(css) {
           const { postcssWithPlugins } = await postcss();
           const result = await postcssWithPlugins.process(css);

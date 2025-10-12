@@ -10,7 +10,8 @@ const PLUGIN_NAME = 'stylex';
 export interface StyleXLoaderOptions {
   stylexImports: string[],
   stylexOption: Partial<StyleXOptions>,
-  nextjsMode: boolean
+  nextjsMode: boolean,
+  nextjsAppRouterMode: boolean
 }
 
 export default async function stylexLoader(this: WebpackLoaderContext<StyleXLoaderOptions>, inputCode: string, inputSourceMap: any) {
@@ -18,7 +19,8 @@ export default async function stylexLoader(this: WebpackLoaderContext<StyleXLoad
   const {
     stylexImports,
     stylexOption,
-    nextjsMode
+    nextjsMode,
+    nextjsAppRouterMode
   } = this.getOptions();
 
   // bail out early if the input doesn't contain stylex imports
@@ -73,7 +75,8 @@ export default async function stylexLoader(this: WebpackLoaderContext<StyleXLoad
       metadata.stylex as any
     );
 
-    if (nextjsMode) {
+    // Next.js Pages Router doesn't need CSS import in every page.
+    if (nextjsMode && nextjsAppRouterMode) {
       // Next.js App Router doesn't support inline matchResource and inline loaders
       // So we adapt Next.js' "external" css import approach instead
       const urlParams = new URLSearchParams({
