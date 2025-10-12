@@ -184,6 +184,8 @@ export function withStyleX(pluginOptions?: StyleXPluginOption) {
       }
 
       config.plugins.push(new StyleXPlugin({
+        nextjsMode: true,
+        nextjsAppRouterMode: true,
         ...pluginOptions,
         stylexOption: {
           ...pluginOptions?.stylexOption,
