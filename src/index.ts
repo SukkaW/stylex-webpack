@@ -239,7 +239,7 @@ export class StyleXPlugin {
              * https://github.com/vercel/next.js/blob/c0c75e4aaa8ece2c9e789e2e3f150d7487b60bbc/packages/next/src/build/index.ts#L905
              * https://github.com/vercel/next.js/blob/c0c75e4aaa8ece2c9e789e2e3f150d7487b60bbc/packages/next/src/build/index.ts#L1796
              *
-             * Note that, if a csutom webpack config is provided, Next.js will always disable build worker: https://github.com/vercel/next.js/blob/c0c75e4aaa8ece2c9e789e2e3f150d7487b60bbc/packages/next/src/build/index.ts#L1723
+             * Note that, if a custom webpack config is provided, Next.js will always disable build worker: https://github.com/vercel/next.js/blob/c0c75e4aaa8ece2c9e789e2e3f150d7487b60bbc/packages/next/src/build/index.ts#L1723
              * We will not take that as an assumption. We already overwrite "nextConfig.experimental.webpackBuildWorker" to false in the Next.js plugin.
              *
              * Now all compiler instances are running in the same process, we can use a global variable to track stylex rules from different compilers.

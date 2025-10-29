@@ -19,4 +19,4 @@ export type NextJsCompilerName = (typeof NEXTJS_COMPILER_NAMES)[keyof typeof NEX
 export function isNextJsCompilerName(name: string | undefined): name is NextJsCompilerName {
   if (name == null) return false;
   return NEXTJS_COMPILER_NAMES[name as keyof typeof NEXTJS_COMPILER_NAMES] === name;
-};
+}
