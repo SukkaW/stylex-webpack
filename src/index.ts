@@ -5,7 +5,8 @@ import type * as webpack from 'webpack';
 import type { StyleXLoaderOptions } from './stylex-loader';
 import type { Buffer } from 'node:buffer';
 
-import { BUILD_INFO_STYLEX_KEY, INCLUDE_REGEXP, PLUGIN_NAME, STYLEX_CHUNK_NAME, VIRTUAL_ENTRYPOINT_CSS_PATH, VIRTUAL_ENTRYPOINT_CSS_PATTERN } from './constants';
+import { BUILD_INFO_STYLEX_KEY, INCLUDE_REGEXP, isNextJsCompilerName, PLUGIN_NAME, STYLEX_CHUNK_NAME, VIRTUAL_ENTRYPOINT_CSS_PATH, VIRTUAL_ENTRYPOINT_CSS_PATTERN } from './constants';
+import type { NextJsCompilerName } from './constants';
 
 import stylexBabelPlugin from '@stylexjs/babel-plugin';
 import path from 'node:path';
@@ -13,6 +14,10 @@ import process from 'node:process';
 
 import VirtualModulesPlugin from 'webpack-virtual-modules';
 import { identity } from 'foxts/identity';
+
+declare namespace globalThis {
+  let __stylex_nextjs_global_registry__: Map<NextJsCompilerName, Map<string, readonly StyleXRule[]>> | undefined;
+}
 
 const stylexLoaderPath = require.resolve('./stylex-loader');
 
@@ -213,10 +218,39 @@ export class StyleXPlugin {
             }
           });
 
-          if (this.loaderOption.nextjsMode && this.loaderOption.nextjsAppRouterMode) {
+          if (this.loaderOption.nextjsMode && this.loaderOption.nextjsAppRouterMode && isNextJsCompilerName(compiler.name)) {
             // TODO: determine which compiler we're in (server, edge, client)
             // If we are in server or edge compiler, we store all style rules to a global variable, then finish
             // If we are in client compiler, we build our CSS and inject it
+
+            if (compiler.name === 'server' || compiler.name === 'edge-server') {
+              (globalThis.__stylex_nextjs_global_registry__ ??= new Map<NextJsCompilerName, Map<string, readonly StyleXRule[]>>())
+                .set(compiler.name, this.stylexRules);
+
+              // we don't need to do anything more in server/edge compiler, no CSS generation is needed
+              return;
+            }
+
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- type safe
+            if (compiler.name === 'client') {
+              const globalRegistry = globalThis.__stylex_nextjs_global_registry__;
+              if (globalRegistry == null) {
+                logger.warn(
+                  'Expected global stylex registry to be defined, but it was not.'
+                );
+              } else {
+                // now we merge all collected rules from other compilers
+                globalRegistry.forEach((rules) => {
+                  rules.forEach((rule, resourcePath) => {
+                    if (!this.stylexRules.has(resourcePath)) {
+                      this.stylexRules.set(resourcePath, rule);
+                    }
+                  });
+                });
+              }
+            } else {
+              const _neverguard: never = compiler.name;
+            }
           }
 
           const stylexCSS = getStyleXRules(this.stylexRules, this.useCSSLayers);
