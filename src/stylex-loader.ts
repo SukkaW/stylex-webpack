@@ -2,6 +2,8 @@ import type { LoaderContext as WebpackLoaderContext } from 'webpack';
 import { transformAsync as babelTransformAsync } from '@babel/core';
 import stylexBabelPlugin from '@stylexjs/babel-plugin';
 import type { Options as StyleXOptions } from '@stylexjs/babel-plugin';
+import { nullthrow } from 'foxts/guard';
+import { BUILD_INFO_STYLEX_KEY } from './constants';
 
 const PLUGIN_NAME = 'stylex';
 
@@ -16,9 +18,7 @@ export default async function stylexLoader(this: WebpackLoaderContext<StyleXLoad
   const callback = this.async();
   const {
     stylexImports,
-    stylexOption,
-    nextjsMode,
-    nextjsAppRouterMode
+    stylexOption
   } = this.getOptions();
 
   // bail out early if the input doesn't contain stylex imports
@@ -61,6 +61,11 @@ export default async function stylexLoader(this: WebpackLoaderContext<StyleXLoad
 
     // this.stylexRules[filename] = metadata.stylex;
     logger?.debug(`Read stylex styles from ${this.resourcePath}:`, metadata.stylex);
+
+    nullthrow(this._module?.buildInfo, '[stylex-webpack] Expected "this._module.buildInfo" to be defined')[BUILD_INFO_STYLEX_KEY] = {
+      resourcePath: this.resourcePath,
+      stylexRules: metadata.stylex
+    };
 
     return callback(null, code ?? undefined, map ?? undefined);
   } catch (error) {

@@ -4,3 +4,5 @@ export const VIRTUAL_ENTRYPOINT_CSS_PATTERN = /stylex\.css/;
 export const STYLEX_CHUNK_NAME = '_stylex-webpack-generated';
 
 export const INCLUDE_REGEXP = /\.[cm]?[jt]sx?$/;
+
+export const BUILD_INFO_STYLEX_KEY = '~stylex_webpack_stylex_rules';
