@@ -261,11 +261,7 @@ export class StyleXPlugin {
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- type safe
             if (compiler.name === NEXTJS_COMPILER_NAMES.client) {
               const globalRegistry = globalThis.__stylex_nextjs_global_registry__;
-              if (globalRegistry == null) {
-                logger.warn(
-                  'Expected global stylex registry to be defined, but it was not.'
-                );
-              } else {
+              if (globalRegistry != null) {
                 // now we merge all collected rules from other compilers
                 globalRegistry.forEach((rules) => {
                   rules.forEach((rule, resourcePath) => {
