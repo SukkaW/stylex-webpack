@@ -2,8 +2,6 @@ import type { LoaderContext as WebpackLoaderContext } from 'webpack';
 import { transformAsync as babelTransformAsync } from '@babel/core';
 import stylexBabelPlugin from '@stylexjs/babel-plugin';
 import type { Options as StyleXOptions } from '@stylexjs/babel-plugin';
-import { isSupplementedLoaderContext, FUCK_NEXTJS_VIRTUAL_CARRIER_PATH } from './constants';
-import { stringifyRequest } from './lib/stringify-request';
 
 const PLUGIN_NAME = 'stylex';
 
@@ -26,10 +24,6 @@ export default async function stylexLoader(this: WebpackLoaderContext<StyleXLoad
   // bail out early if the input doesn't contain stylex imports
   if (!stylexImports.some((importName) => inputCode.includes(importName))) {
     return callback(null, inputCode, inputSourceMap);
-  }
-
-  if (!isSupplementedLoaderContext(this)) {
-    return callback(new Error('stylex-loader: loader context is not SupplementedLoaderContext!'));
   }
 
   try {
@@ -67,31 +61,6 @@ export default async function stylexLoader(this: WebpackLoaderContext<StyleXLoad
 
     // this.stylexRules[filename] = metadata.stylex;
     logger?.debug(`Read stylex styles from ${this.resourcePath}:`, metadata.stylex);
-
-    // TODO-RSPACK: doesn't support custom loader context
-    // Find a better way to register stylex rules to the compiler instance
-    this.StyleXWebpackContextKey.registerStyleXRules(
-      this.resourcePath,
-      metadata.stylex as any
-    );
-
-    // Next.js Pages Router doesn't need CSS import in every page.
-    if (nextjsMode && nextjsAppRouterMode) {
-      // Next.js App Router doesn't support inline matchResource and inline loaders
-      // So we adapt Next.js' "external" css import approach instead
-      const urlParams = new URLSearchParams({
-        from: this.resourcePath,
-        stylex: JSON.stringify(metadata.stylex) // color: #fff is not url safe, let's get through JSON.stringify
-      });
-
-      const virtualCssRequest = stringifyRequest(
-        this,
-        `${FUCK_NEXTJS_VIRTUAL_CARRIER_PATH}?${urlParams.toString()}`
-      );
-      const postfix = `\nimport ${virtualCssRequest};`;
-
-      return callback(null, code + postfix, map ?? undefined);
-    }
 
     return callback(null, code ?? undefined, map ?? undefined);
   } catch (error) {
