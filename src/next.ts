@@ -90,120 +90,134 @@ function getStyleXVirtualCssLoader(ctx: WebpackConfigContext, MiniCssExtractPlug
 }
 
 export function withStyleX(pluginOptions?: StyleXPluginOption) {
-  return (nextConfig: NextConfig = {}): NextConfig => ({
-    ...nextConfig,
-    webpack(config: WebpackConfiguration & WebpackConfigurationContext, ctx: WebpackConfigContext) {
-      if (typeof nextConfig.webpack === 'function') {
-        config = nextConfig.webpack(config, ctx);
-      }
+  return (nextConfig: NextConfig = {}): NextConfig => {
+    const config = {
+      ...nextConfig,
+      webpack(config: WebpackConfiguration & WebpackConfigurationContext, ctx: WebpackConfigContext) {
+        if (typeof nextConfig.webpack === 'function') {
+          config = nextConfig.webpack(config, ctx);
+        }
 
-      // For some reason, Next 11.0.1 has `config.optimization.splitChunks`
-      // set to `false` when webpack 5 is enabled.
-      config.optimization ||= {};
-      config.optimization.splitChunks ||= {};
-      config.optimization.splitChunks.cacheGroups ||= {};
+        // For some reason, Next 11.0.1 has `config.optimization.splitChunks`
+        // set to `false` when webpack 5 is enabled.
+        config.optimization ||= {};
+        config.optimization.splitChunks ||= {};
+        config.optimization.splitChunks.cacheGroups ||= {};
 
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- could be undefined
-      const useLightningcss = config.experimental?.useLightningcss;
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- could be undefined
+        const useLightningcss = config.experimental?.useLightningcss;
 
-      let lazyPostCSSPromise: Promise<{ postcss: typeof import('postcss'), postcssWithPlugins: PostCSSProcessor }> | null = null;
-      const postcss = () => {
-        lazyPostCSSPromise ||= lazyPostCSS(
-          ctx.dir,
-          getSupportedBrowsers(ctx.dir, ctx.dev),
-          undefined,
-          useLightningcss
-        );
-        return lazyPostCSSPromise;
-      };
+        let lazyPostCSSPromise: Promise<{ postcss: typeof import('postcss'), postcssWithPlugins: PostCSSProcessor }> | null = null;
+        const postcss = () => {
+          lazyPostCSSPromise ||= lazyPostCSS(
+            ctx.dir,
+            getSupportedBrowsers(ctx.dir, ctx.dev),
+            undefined,
+            useLightningcss
+          );
+          return lazyPostCSSPromise;
+        };
 
-      const MiniCssExtractPlugin = getNextMiniCssExtractPlugin(ctx.dev);
-      // Based on https://github.com/vercel/next.js/blob/88a5f263f11cb55907f0d89a4cd53647ee8e96ac/packages/next/build/webpack/config/helpers.ts#L12-L18
-      const cssRules = (
-        config.module?.rules?.find(
-          rule => typeof rule === 'object'
-            && rule !== null
-            && Array.isArray(rule.oneOf)
-            && rule.oneOf.some(
-              setRule => setRule
-                && setRule.test instanceof RegExp
-                && typeof setRule.test.test === 'function'
-                && setRule.test.test('filename.css')
-            )
-        ) as WebpackRuleSetRule
-      ).oneOf;
-      // Here we matches virtual css file emitted by StyleXPlugin
-      cssRules?.unshift({
-        test: VIRTUAL_ENTRYPOINT_CSS_PATTERN,
-        use: getStyleXVirtualCssLoader(ctx, MiniCssExtractPlugin, postcss)
-      });
+        const MiniCssExtractPlugin = getNextMiniCssExtractPlugin(ctx.dev);
+        // Based on https://github.com/vercel/next.js/blob/88a5f263f11cb55907f0d89a4cd53647ee8e96ac/packages/next/build/webpack/config/helpers.ts#L12-L18
+        const cssRules = (
+          config.module?.rules?.find(
+            rule => typeof rule === 'object'
+              && rule !== null
+              && Array.isArray(rule.oneOf)
+              && rule.oneOf.some(
+                setRule => setRule
+                  && setRule.test instanceof RegExp
+                  && typeof setRule.test.test === 'function'
+                  && setRule.test.test('filename.css')
+              )
+          ) as WebpackRuleSetRule
+        ).oneOf;
 
-      config.plugins ??= [];
+        // Here we matches virtual css file emitted by StyleXPlugin
+        cssRules?.unshift({
+          test: VIRTUAL_ENTRYPOINT_CSS_PATTERN,
+          use: getStyleXVirtualCssLoader(ctx, MiniCssExtractPlugin, postcss)
+        });
 
-      // StyleX need to emit the css file on both server and client, both during the
-      // development and production.
-      // However, Next.js only add MiniCssExtractPlugin on client + production.
-      //
-      // To simplify the logic at our side, we will add MiniCssExtractPlugin based on
-      // the "instanceof" check (We will only add our required MiniCssExtractPlugin if
-      // Next.js hasn't added it yet).
-      // This also prevent multiple MiniCssExtractPlugin being added (which will cause
-      // RealContentHashPlugin to panic)
-      if (
-        !config.plugins.some((plugin: unknown) => plugin instanceof MiniCssExtractPlugin)
-      ) {
+        config.plugins ??= [];
+
+        // StyleX need to emit the css file on both server and client, both during the
+        // development and production.
+        // However, Next.js only add MiniCssExtractPlugin on client + production.
+        //
+        // To simplify the logic at our side, we will add MiniCssExtractPlugin based on
+        // the "instanceof" check (We will only add our required MiniCssExtractPlugin if
+        // Next.js hasn't added it yet).
+        // This also prevent multiple MiniCssExtractPlugin being added (which will cause
+        // RealContentHashPlugin to panic)
+        if (
+          !config.plugins.some((plugin: unknown) => plugin instanceof MiniCssExtractPlugin)
+        ) {
         // HMR reloads the CSS file when the content changes but does not use
         // the new file name, which means it can't contain a hash.
-        const filename = ctx.dev
-          ? 'static/css/[name].css'
-          : 'static/css/[contenthash].css';
+          const filename = ctx.dev
+            ? 'static/css/[name].css'
+            : 'static/css/[contenthash].css';
 
-        // Logic adopted from https://github.com/vercel/next.js/blob/143769bc8304423ba2038accf6f10de240733821/packages/next/src/build/webpack/config/blocks/css/index.ts#L606
-        config.plugins.push(
-          new MiniCssExtractPlugin({
-            filename,
-            chunkFilename: filename,
-            // Next.js guarantees that CSS order "doesn't matter", due to imposed
-            // restrictions:
-            // 1. Global CSS can only be defined in a single entrypoint (_app)
-            // 2. CSS Modules generate scoped class names by default and cannot
-            //    include Global CSS (:global() selector).
-            //
-            // While not a perfect guarantee (e.g. liberal use of `:global()`
-            // selector), this assumption is required to code-split CSS.
-            //
-            // As for StyleX, the CSS is always atomic (so classes are always unique),
-            // and StyleX Plugin will always sort the css based on media query and pseudo
-            // selector.
-            //
-            // If this warning were to trigger, it'd be unactionable by the user,
-            // but likely not valid -- so just disable it.
-            ignoreOrder: true
-          })
-        );
-      }
-
-      config.plugins.push(new StyleXPlugin({
-        nextjsMode: true,
-        nextjsAppRouterMode: true,
-        ...pluginOptions,
-        stylexOption: {
-          ...pluginOptions?.stylexOption,
-          dev: ctx.dev
-        },
-        async transformCss(css) {
-          const { postcssWithPlugins } = await postcss();
-          const result = await postcssWithPlugins.process(css);
-
-          if (pluginOptions?.transformCss) {
-            return pluginOptions.transformCss(result.css);
-          }
-
-          return result.css;
+          // Logic adopted from https://github.com/vercel/next.js/blob/143769bc8304423ba2038accf6f10de240733821/packages/next/src/build/webpack/config/blocks/css/index.ts#L606
+          config.plugins.push(
+            new MiniCssExtractPlugin({
+              filename,
+              chunkFilename: filename,
+              // Next.js guarantees that CSS order "doesn't matter", due to imposed
+              // restrictions:
+              // 1. Global CSS can only be defined in a single entrypoint (_app)
+              // 2. CSS Modules generate scoped class names by default and cannot
+              //    include Global CSS (:global() selector).
+              //
+              // While not a perfect guarantee (e.g. liberal use of `:global()`
+              // selector), this assumption is required to code-split CSS.
+              //
+              // As for StyleX, the CSS is always atomic (so classes are always unique),
+              // and StyleX Plugin will always sort the css based on media query and pseudo
+              // selector.
+              //
+              // If this warning were to trigger, it'd be unactionable by the user,
+              // but likely not valid -- so just disable it.
+              ignoreOrder: true
+            })
+          );
         }
-      }));
 
-      return config;
+        config.plugins.push(new StyleXPlugin({
+          nextjsMode: true,
+          nextjsAppRouterMode: true,
+          ...pluginOptions,
+          stylexOption: {
+            ...pluginOptions?.stylexOption,
+            dev: ctx.dev
+          },
+          async transformCss(css) {
+            const { postcssWithPlugins } = await postcss();
+            // add from: undefined to avoid source map warning
+            const result = await postcssWithPlugins.process(css, { from: undefined });
+
+            if (pluginOptions?.transformCss) {
+              return pluginOptions.transformCss(result.css);
+            }
+
+            return result.css;
+          }
+        }));
+
+        return config;
+      }
+    };
+
+    // https://github.com/vercel/next.js/blob/ad6907a8a37e930639af071203f4ce49a5d69ee5/packages/next/src/build/index.ts#L1723
+    // Actually, if a custom webpack config is provided, Next.js will always disable parallel bundling
+    // But we should not take that as an assumption, so we just warn and disable the options
+    if (config.experimental?.webpackBuildWorker) {
+      warn('[stylex-webpack] "experimental.webpackBuildWorker" is not supported with "stylex-webpack", the option will be disabled.');
+      config.experimental.webpackBuildWorker = false;
     }
-  });
+
+    return config;
+  };
 }
