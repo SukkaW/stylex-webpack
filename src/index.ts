@@ -154,6 +154,13 @@ export class StyleXPlugin {
       );
     });
 
+    // compiler.hooks.compilation.tap(PLUGIN_NAME, (compilation) => {
+    //   compilation.dependencyTemplates.set(
+    //     CssLocalIdentifierDependency,
+    //     new CssLocalIdentifierDependency.Template()
+    //   );
+    // });
+
     const { Compilation, NormalModule, sources } = compiler.webpack;
     const { RawSource } = sources;
 
@@ -284,27 +291,36 @@ export class StyleXPlugin {
 
           const finalCss = await this.transformCss(stylexCSS);
 
-          const stylexChunk = compilation.namedChunks.get(STYLEX_CHUNK_NAME);
+          if (compiler.options.mode === 'development' && this.loaderOption.nextjsMode && this.loaderOption.nextjsAppRouterMode) {
+            // In development mode, a.k.a. HMR
+            /**
+             * Now we write final CSS to virtual module, which acts like `stylex-webpack/stylex.css` has been
+             * updated locally on the disk, and Next.js and webpack will have no choice but to update the global css
+             */
+            this._virtualModuleInstance.writeModule(VIRTUAL_ENTRYPOINT_CSS_PATH, finalCss.toString());
+          } else {
+            const stylexChunk = compilation.namedChunks.get(STYLEX_CHUNK_NAME);
 
-          if (!stylexChunk) return;
+            if (!stylexChunk) return;
 
-          // Let's find the css file that belongs to the stylex chunk
-          const stylexChunkCssAssetNames = Object.keys(assets).filter((assetName) => stylexChunk.files.has(assetName) && assetName.endsWith('.css'));
+            // Let's find the css file that belongs to the stylex chunk
+            const stylexChunkCssAssetNames = Object.keys(assets).filter((assetName) => stylexChunk.files.has(assetName) && assetName.endsWith('.css'));
 
-          if (stylexChunkCssAssetNames.length === 0) {
-            return;
+            if (stylexChunkCssAssetNames.length === 0) {
+              return;
+            }
+            if (stylexChunkCssAssetNames.length > 1) {
+              logger.warn('Multiple CSS assets found for the stylex chunk. This should not happen. Please report this issue.');
+            }
+
+            const stylexAssetName = stylexChunkCssAssetNames[0];
+
+            compilation.updateAsset(
+              stylexAssetName,
+              () => new RawSource(finalCss),
+              { minimized: false }
+            );
           }
-          if (stylexChunkCssAssetNames.length > 1) {
-            logger.warn('Multiple CSS assets found for the stylex chunk. This should not happen. Please report this issue.');
-          }
-
-          const stylexAssetName = stylexChunkCssAssetNames[0];
-
-          compilation.updateAsset(
-            stylexAssetName,
-            () => new RawSource(finalCss),
-            { minimized: false }
-          );
         }
       );
     });
