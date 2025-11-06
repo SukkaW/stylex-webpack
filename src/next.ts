@@ -12,7 +12,7 @@ import type {
   Configuration as WebpackConfiguration,
   RuleSetRule as WebpackRuleSetRule
 } from 'webpack';
-import { VIRTUAL_ENTRYPOINT_CSS_PATTERN } from './constants';
+import { VIRTUAL_CSS_PATTERN } from './constants';
 
 import type { Processor as PostCSSProcessor } from 'postcss';
 
@@ -136,7 +136,7 @@ export function withStyleX(pluginOptions?: StyleXPluginOption) {
 
         // Here we matches virtual css file emitted by StyleXPlugin
         cssRules?.unshift({
-          test: VIRTUAL_ENTRYPOINT_CSS_PATTERN,
+          test: VIRTUAL_CSS_PATTERN,
           use: getStyleXVirtualCssLoader(ctx, MiniCssExtractPlugin, postcss)
         });
 

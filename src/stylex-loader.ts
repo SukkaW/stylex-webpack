@@ -3,7 +3,8 @@ import { transformAsync as babelTransformAsync } from '@babel/core';
 import stylexBabelPlugin from '@stylexjs/babel-plugin';
 import type { Options as StyleXOptions } from '@stylexjs/babel-plugin';
 import { nullthrow } from 'foxts/guard';
-import { BUILD_INFO_STYLEX_KEY } from './constants';
+import { BUILD_INFO_STYLEX_KEY, VIRTUAL_STYLEX_CSS_DUMMY_IMPORT_PATH } from './constants';
+import { stringifyRequest } from './lib/stringify-request';
 
 const PLUGIN_NAME = 'stylex';
 
@@ -67,7 +68,18 @@ export default async function stylexLoader(this: WebpackLoaderContext<StyleXLoad
       stylexRules: metadata.stylex
     };
 
-    return callback(null, code ?? undefined, map ?? undefined);
+    // Add a dummy virtual import that will be picked up by virtual dummy import loader to add fake CSS to invalidate HMR
+    const urlParams = new URLSearchParams({
+      from: this.resourcePath,
+      stylex: JSON.stringify(metadata.stylex) // color: #fff is not url safe, let's get through JSON.stringify
+    });
+    const virtualCssRequest = stringifyRequest(
+      this,
+      `${VIRTUAL_STYLEX_CSS_DUMMY_IMPORT_PATH}?${urlParams.toString()}`
+    );
+    const postfix = `\nimport ${virtualCssRequest};`;
+
+    return callback(null, code + postfix, map ?? undefined);
   } catch (error) {
     return callback(error as Error);
   }
