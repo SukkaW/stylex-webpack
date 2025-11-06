@@ -12,7 +12,6 @@ import stylexBabelPlugin from '@stylexjs/babel-plugin';
 import path from 'node:path';
 import process from 'node:process';
 
-import VirtualModulesPlugin from 'webpack-virtual-modules';
 import { identity } from 'foxts/identity';
 
 declare namespace globalThis {
@@ -86,8 +85,6 @@ export class StyleXPlugin {
 
   transformCss: CSSTransformer;
 
-  private readonly _virtualModuleInstance = new VirtualModulesPlugin();
-
   constructor({
     stylexImports = ['stylex', '@stylexjs/stylex'],
     useCSSLayers = false,
@@ -124,8 +121,6 @@ export class StyleXPlugin {
         ].join(' ')
       );
     }
-
-    this._virtualModuleInstance.apply(compiler);
 
     compiler.options.optimization.splitChunks.cacheGroups ??= {};
     compiler.options.optimization.splitChunks.cacheGroups[STYLEX_CHUNK_NAME] = {
