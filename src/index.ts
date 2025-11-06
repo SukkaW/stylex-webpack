@@ -292,8 +292,6 @@ export class StyleXPlugin {
 
           const stylexCSS = getStyleXRules(this.stylexRules, this.useCSSLayers);
 
-          console.log({ stylexCSS });
-
           if (stylexCSS == null) {
             return;
           }
@@ -301,8 +299,6 @@ export class StyleXPlugin {
           const finalCss = await this.transformCss(stylexCSS);
 
           const stylexChunk = compilation.namedChunks.get(STYLEX_CHUNK_NAME);
-
-          console.log({ stylexChunk });
 
           if (!stylexChunk) return;
 
