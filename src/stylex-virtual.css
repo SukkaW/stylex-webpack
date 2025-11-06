@@ -1,0 +1,7 @@
+/*
+ * This is a noop file that is meant to be imported via a dummy import by stylex webpack loader
+ *
+ * This has to be an actual file as webpack requires a file to exist on disk
+ *
+ * In production build this should have been minimized away, if not please report an issue.
+ */
