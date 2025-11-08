@@ -3,7 +3,7 @@ import { transformAsync as babelTransformAsync } from '@babel/core';
 import stylexBabelPlugin from '@stylexjs/babel-plugin';
 import type { Options as StyleXOptions } from '@stylexjs/babel-plugin';
 import { nullthrow } from 'foxts/guard';
-import { BUILD_INFO_STYLEX_KEY, VIRTUAL_STYLEX_CSS_DUMMY_IMPORT_PATH } from './constants';
+import { BUILD_INFO_STYLEX_KEY, LOADER_TRANSFORMED_FLAG, VIRTUAL_STYLEX_CSS_DUMMY_IMPORT_PATH } from './constants';
 import { stringifyRequest } from './lib/stringify-request';
 
 const PLUGIN_NAME = 'stylex';
@@ -17,6 +17,13 @@ export interface StyleXLoaderOptions {
 
 export default async function stylexLoader(this: WebpackLoaderContext<StyleXLoaderOptions>, inputCode: string, inputSourceMap: any) {
   const callback = this.async();
+
+  // bail out early if already transformed
+  // for some reason, a module might be passed to stylex-loader more than once, happened with Next.js App Router
+  if (inputCode.includes(LOADER_TRANSFORMED_FLAG)) {
+    return callback(null, inputCode, inputSourceMap);
+  }
+
   const {
     stylexImports,
     stylexOption
@@ -77,7 +84,7 @@ export default async function stylexLoader(this: WebpackLoaderContext<StyleXLoad
       this,
       `${VIRTUAL_STYLEX_CSS_DUMMY_IMPORT_PATH}?${urlParams.toString()}`
     );
-    const postfix = `\nimport ${virtualCssRequest};`;
+    const postfix = `\nimport ${virtualCssRequest};\n${LOADER_TRANSFORMED_FLAG}`;
 
     return callback(null, code + postfix, map ?? undefined);
   } catch (error) {

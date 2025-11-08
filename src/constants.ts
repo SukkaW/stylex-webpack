@@ -1,4 +1,7 @@
 export const PLUGIN_NAME = 'stylex';
+
+export const LOADER_TRANSFORMED_FLAG = '/* [stylex-webpack] stylex-loader transformed */';
+
 export const VIRTUAL_ENTRYPOINT_CSS_PATH: string = require.resolve('./stylex.css');
 export const VIRTUAL_STYLEX_CSS_DUMMY_IMPORT_PATH: string = require.resolve('./stylex-virtual.css');
 
