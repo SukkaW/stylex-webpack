@@ -202,13 +202,41 @@ export class StyleXPlugin {
         }
       );
 
-      compilation.hooks.processAssets.tapPromise(
-        {
-          name: PLUGIN_NAME,
-          stage: Compilation.PROCESS_ASSETS_STAGE_PRE_PROCESS
-        },
-        async (assets) => {
-          compilation.modules.forEach((mod) => {
+      /**
+       * Next.js call webpack compiler through "runCompiler": https://github.com/vercel/next.js/blob/c0c75e4aaa8ece2c9e789e2e3f150d7487b60bbc/packages/next/src/build/compiler.ts#L39
+       *
+       * The "runCompiler" funtion is invoked by "webpackBuildImpl" function: https://github.com/vercel/next.js/blob/ad6907a8a37e930639af071203f4ce49a5d69ee5/packages/next/src/build/webpack-build/impl.ts#L203
+       *
+       * The "webpackBuildImpl" function accepts "compilerName" parameter, and is invoked by "webpackBuild" function: https://github.com/vercel/next.js/blob/c0c75e4aaa8ece2c9e789e2e3f150d7487b60bbc/packages/next/src/build/webpack-build/index.ts#L124
+       * When build worker is enabled, the "compilerName" parameter is set to either "client", "server" or "edge-server". If build worker is disabled,
+       * the "compilerName" parameter is always "null".
+       *
+       * When build worker is disabled, the multi-stage build is managed by "webpackBuildImpl" function itself: https://github.com/vercel/next.js/blob/ad6907a8a37e930639af071203f4ce49a5d69ee5/packages/next/src/build/webpack-build/impl.ts#L203
+       * It will first run "server" compiler, then "edge-server" compiler, and finally "client" compiler.
+       *
+       * The "webpackBuildImpl" function is invoked by "webpackBuild" function: https://github.com/vercel/next.js/blob/c0c75e4aaa8ece2c9e789e2e3f150d7487b60bbc/packages/next/src/build/webpack-build/index.ts#L124
+       *
+       * If build worker is enabled, the multi-stage build is managed by the build entrypoint, and the "client", "server" and "edge-server" compilerName
+       * is passed to "webpackBuildImpl" through "webpackBuild" function:
+       * https://github.com/vercel/next.js/blob/c0c75e4aaa8ece2c9e789e2e3f150d7487b60bbc/packages/next/src/build/index.ts#L905
+       * https://github.com/vercel/next.js/blob/c0c75e4aaa8ece2c9e789e2e3f150d7487b60bbc/packages/next/src/build/index.ts#L1796
+       *
+       * Note that, if a custom webpack config is provided, Next.js will always disable build worker: https://github.com/vercel/next.js/blob/c0c75e4aaa8ece2c9e789e2e3f150d7487b60bbc/packages/next/src/build/index.ts#L1723
+       * We will not take that as an assumption. We already overwrite "nextConfig.experimental.webpackBuildWorker" to false in the Next.js plugin.
+       *
+       * Now all compiler instances are running in the same process, we can use a global variable to track stylex rules from different compilers.
+       *
+       * Back to "runCompiler". "runCompiler" accepts webpack configurations which is created by "getBaseWebpackConfig" function: https://github.com/vercel/next.js/blob/ad6907a8a37e930639af071203f4ce49a5d69ee5/packages/next/src/build/webpack-build/impl.ts#L128
+       *
+       * Inside "getBaseWebpackConfig" function, there is a "buildConfiguration" function: https://github.com/vercel/next.js/blob/ad6907a8a37e930639af071203f4ce49a5d69ee5/packages/next/src/build/webpack-config.ts#L2464
+       * Inside "buildConfiguration" function there is a curried "base" function: https://github.com/vercel/next.js/blob/c0c75e4aaa8ece2c9e789e2e3f150d7487b60bbc/packages/next/src/build/webpack/config/index.ts#L73
+       * Inside the "base" function, the compiler name is attached to the webpack configuration: https://github.com/vercel/next.js/blob/c0c75e4aaa8ece2c9e789e2e3f150d7487b60bbc/packages/next/src/build/webpack/config/blocks/base.ts#L24
+       */
+
+      compilation.hooks.finishModules.tap(
+        PLUGIN_NAME,
+        (modules) => {
+          for (const mod of modules) {
             if (mod.buildInfo && BUILD_INFO_STYLEX_KEY in mod.buildInfo) {
               const stylexBuildInfo = mod.buildInfo[BUILD_INFO_STYLEX_KEY];
               if (
@@ -226,39 +254,17 @@ export class StyleXPlugin {
                 );
               }
             }
-          });
+          };
+        }
+      );
 
+      compilation.hooks.processAssets.tapPromise(
+        {
+          name: PLUGIN_NAME,
+          stage: Compilation.PROCESS_ASSETS_STAGE_PRE_PROCESS
+        },
+        async (assets) => {
           if (this.loaderOption.nextjsMode && this.loaderOption.nextjsAppRouterMode && isNextJsCompilerName(compiler.name)) {
-            /**
-             * Next.js call webpack compiler through "runCompiler": https://github.com/vercel/next.js/blob/c0c75e4aaa8ece2c9e789e2e3f150d7487b60bbc/packages/next/src/build/compiler.ts#L39
-             *
-             * The "runCompiler" funtion is invoked by "webpackBuildImpl" function: https://github.com/vercel/next.js/blob/ad6907a8a37e930639af071203f4ce49a5d69ee5/packages/next/src/build/webpack-build/impl.ts#L203
-             *
-             * The "webpackBuildImpl" function accepts "compilerName" parameter, and is invoked by "webpackBuild" function: https://github.com/vercel/next.js/blob/c0c75e4aaa8ece2c9e789e2e3f150d7487b60bbc/packages/next/src/build/webpack-build/index.ts#L124
-             * When build worker is enabled, the "compilerName" parameter is set to either "client", "server" or "edge-server". If build worker is disabled,
-             * the "compilerName" parameter is always "null".
-             *
-             * When build worker is disabled, the multi-stage build is managed by "webpackBuildImpl" function itself: https://github.com/vercel/next.js/blob/ad6907a8a37e930639af071203f4ce49a5d69ee5/packages/next/src/build/webpack-build/impl.ts#L203
-             * It will first run "server" compiler, then "edge-server" compiler, and finally "client" compiler.
-             *
-             * The "webpackBuildImpl" function is invoked by "webpackBuild" function: https://github.com/vercel/next.js/blob/c0c75e4aaa8ece2c9e789e2e3f150d7487b60bbc/packages/next/src/build/webpack-build/index.ts#L124
-             *
-             * If build worker is enabled, the multi-stage build is managed by the build entrypoint, and the "client", "server" and "edge-server" compilerName
-             * is passed to "webpackBuildImpl" through "webpackBuild" function:
-             * https://github.com/vercel/next.js/blob/c0c75e4aaa8ece2c9e789e2e3f150d7487b60bbc/packages/next/src/build/index.ts#L905
-             * https://github.com/vercel/next.js/blob/c0c75e4aaa8ece2c9e789e2e3f150d7487b60bbc/packages/next/src/build/index.ts#L1796
-             *
-             * Note that, if a custom webpack config is provided, Next.js will always disable build worker: https://github.com/vercel/next.js/blob/c0c75e4aaa8ece2c9e789e2e3f150d7487b60bbc/packages/next/src/build/index.ts#L1723
-             * We will not take that as an assumption. We already overwrite "nextConfig.experimental.webpackBuildWorker" to false in the Next.js plugin.
-             *
-             * Now all compiler instances are running in the same process, we can use a global variable to track stylex rules from different compilers.
-             *
-             * Back to "runCompiler". "runCompiler" accepts webpack configurations which is created by "getBaseWebpackConfig" function: https://github.com/vercel/next.js/blob/ad6907a8a37e930639af071203f4ce49a5d69ee5/packages/next/src/build/webpack-build/impl.ts#L128
-             *
-             * Inside "getBaseWebpackConfig" function, there is a "buildConfiguration" function: https://github.com/vercel/next.js/blob/ad6907a8a37e930639af071203f4ce49a5d69ee5/packages/next/src/build/webpack-config.ts#L2464
-             * Inside "buildConfiguration" function there is a curried "base" function: https://github.com/vercel/next.js/blob/c0c75e4aaa8ece2c9e789e2e3f150d7487b60bbc/packages/next/src/build/webpack/config/index.ts#L73
-             * Inside the "base" function, the compiler name is attached to the webpack configuration: https://github.com/vercel/next.js/blob/c0c75e4aaa8ece2c9e789e2e3f150d7487b60bbc/packages/next/src/build/webpack/config/blocks/base.ts#L24
-             */
             if (compiler.name === NEXTJS_COMPILER_NAMES.server || compiler.name === NEXTJS_COMPILER_NAMES.edgeServer) {
               (globalThis.__stylex_nextjs_global_registry__ ??= new Map<NextJsCompilerName, Map<string, readonly StyleXRule[]>>())
                 .set(compiler.name, this.stylexRules);
@@ -274,9 +280,7 @@ export class StyleXPlugin {
                 // now we merge all collected rules from other compilers
                 globalRegistry.forEach((rules) => {
                   rules.forEach((rule, resourcePath) => {
-                    if (!this.stylexRules.has(resourcePath)) {
-                      this.stylexRules.set(resourcePath, rule);
-                    }
+                    this.stylexRules.set(resourcePath, rule);
                   });
                 });
               }
