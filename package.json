@@ -23,8 +23,8 @@
       "default": "./dist/index.js"
     },
     "./next": {
-      "types": "./next/index.d.ts",
-      "default": "./next/index.js"
+      "types": "./dist/next/index.d.ts",
+      "default": "./dist/next/index.js"
     },
     "./stylex.css": "./dist/stylex.css"
   },
