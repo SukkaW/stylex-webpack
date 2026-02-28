@@ -17,7 +17,7 @@ const styles = stylex.create({
     marginBlockStart: 99,
     height: 500,
     ':hover': {
-      background: 'red',
+      backgroundColor: 'red',
     },
   },
 });
