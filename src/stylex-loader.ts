@@ -5,6 +5,7 @@ import type { Options as StyleXOptions } from '@stylexjs/babel-plugin';
 import { nullthrow } from 'foxts/guard';
 import { BUILD_INFO_STYLEX_KEY, LOADER_TRANSFORMED_FLAG, VIRTUAL_STYLEX_CSS_DUMMY_IMPORT_PATH } from './constants';
 import { stringifyRequest } from './lib/stringify-request';
+import path from 'node:path';
 
 const PLUGIN_NAME = 'stylex';
 
@@ -76,8 +77,10 @@ export default async function stylexLoader(this: WebpackLoaderContext<StyleXLoad
     };
 
     // Add a dummy virtual import that will be picked up by virtual dummy import loader to add fake CSS to invalidate HMR
+    const from = path.relative(this.rootContext, this.resourcePath);
+
     const urlParams = new URLSearchParams({
-      from: this.resourcePath,
+      from,
       stylex: JSON.stringify(metadata.stylex) // color: #fff is not url safe, let's get through JSON.stringify
     });
     const virtualCssRequest = stringifyRequest(

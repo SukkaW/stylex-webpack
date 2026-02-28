@@ -1,0 +1,13 @@
+// stylex-webpack (webpack) should work 1
+
+"""
+import * as stylex from '@stylexjs/stylex';
+const fadeAnimation = "xgnty7z-B";
+export default function App() {
+  return {
+    className: "xeuoslp x78zum5 x1hm9lzh xlrshdv x1egiwwb x1gykpug"
+  };
+}
+import "../../src/stylex-virtual.css?from=simple.js&stylex=%5B%5B%22xgnty7z-B%22%2C%7B%22ltr%22%3A%22%40keyframes+xgnty7z-B%7B0%25%7Bopacity%3A.25%3B%7D100%25%7Bopacity%3A1%3B%7D%7D%22%2C%22rtl%22%3Anull%7D%2C0%5D%2C%5B%22xeuoslp%22%2C%7B%22ltr%22%3A%22.xeuoslp%7Banimation-name%3Axgnty7z-B%7D%22%2C%22rtl%22%3Anull%7D%2C3000%5D%2C%5B%22x78zum5%22%2C%7B%22ltr%22%3A%22.x78zum5%7Bdisplay%3Aflex%7D%22%2C%22rtl%22%3Anull%7D%2C3000%5D%2C%5B%22x1hm9lzh%22%2C%7B%22ltr%22%3A%22.x1hm9lzh%7Bmargin-inline-start%3A10px%7D%22%2C%22rtl%22%3Anull%7D%2C3000%5D%2C%5B%22xlrshdv%22%2C%7B%22ltr%22%3A%22.xlrshdv%7Bmargin-top%3A99px%7D%22%2C%22rtl%22%3Anull%7D%2C4000%5D%2C%5B%22x1egiwwb%22%2C%7B%22ltr%22%3A%22.x1egiwwb%7Bheight%3A500px%7D%22%2C%22rtl%22%3Anull%7D%2C4000%5D%2C%5B%22x1gykpug%22%2C%7B%22ltr%22%3A%22.x1gykpug%3Ahover%7Bbackground-color%3Ared%7D%22%2C%22rtl%22%3Anull%7D%2C3130%5D%5D";
+/* [stylex-webpack] stylex-loader transformed */
+"""

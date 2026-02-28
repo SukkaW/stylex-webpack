@@ -99,8 +99,10 @@ export class StyleXPlugin {
       stylexOption: {
         dev: process.env.NODE_ENV === 'development',
         // useRemForFontSize: true,
+        enableFontSizePxToRem: true,
         runtimeInjection: false,
         // genConditionalClasses: true,
+        enableInlinedConditionalMerge: true,
         treeshakeCompensation: true,
         importSources: stylexImports,
         ...stylexOption
