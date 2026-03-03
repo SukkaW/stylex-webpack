@@ -19,14 +19,23 @@ Unlike StyleX's official webpack plugin, `stylex-webpack` requires you have setu
 
 ```sh
 # npm
-npm i stylex-webpack @stylexjs/babel-plugin
+npm i stylex-webpack
 # Yarn
-yarn add stylex-webpack @stylexjs/babel-plugin
+yarn add stylex-webpack
 # pnpm
-pnpm add stylex-webpack @stylexjs/babel-plugin
+pnpm add stylex-webpack
 ```
 
 `@stylexjs/babel-plugin` is declared as a mandatory peer dependency. But we still recommend you install it directly in your project to specify the version you want to use.
+
+```sh
+# npm
+npm i @stylexjs/babel-plugin -D
+# Yarn
+yarn add @stylexjs/babel-plugin -D
+# pnpm
+pnpm add @stylexjs/babel-plugin -D
+```
 
 Also you will most likely need to install `@stylexjs/stylex` as well if you haven't already:
 
@@ -95,6 +104,81 @@ Then import `stylex-webpack/stylex.css` inside the entry point of your Next.js A
 
 ```tsx
 import 'stylex-webpack/stylex.css';
+```
+
+### Utilities
+
+`stylex-webpack` also exports a few utilities for better StyleX development experience under `stylex-webpack/utils`:
+
+#### `stylexPropsWithClassName`
+
+This allows you to easily combine `stylex.props` with other CSS class names, which is useful when you want to use stylex together with other CSS solutions when stylex is not enough, notoriously, Radix UI uses data attributes for uncontrolled components' styling.
+
+```tsx
+import * as stylex from '@stylexjs/stylex';
+import { stylexPropsWithClassName } from 'stylex-webpack/utils';
+
+const styles = stylex.create({
+  myStyle: {
+    color: 'red'
+  }
+});
+
+import cssModules from './MyComponent.module.css';
+
+<div
+  {...stylexPropsWithClassName(
+    stylex.props(styles.myStyle),
+    // You can now easily combine stylex.props with other CSS class names
+    // This is useful when you want to use stylex together with other CSS solutions when stylex is not enough
+    cssModules.someClassName,
+    cssModules.anotherClassName,
+    condition && cssModules.conditionalClassName
+  )}
+>
+```
+
+#### `stylexPropsWithStyleObject`
+
+Similar to `stylexPropsWithClassName`, this allows you to easily combine `stylex.props` with inline style objects, this is useful if you have custom inline style object, e.g. from dynamically generated styles based on user input.
+
+```tsx
+import * as stylex from '@stylexjs/stylex';
+import { stylexPropsWithStyleObject } from 'stylex-webpack/utils';
+
+const styles = stylex.create({
+  myStyle: {
+    color: 'var(--user-input-color)'
+  }
+});
+
+<div {...stylexPropsWithStyleObject(
+  stylex.props(styles.myStyle),
+  {
+    // You can now easily combine stylex.props with inline style objects
+    // This is useful if you have custom inline style object, e.g. from dynamically generated styles based on user input
+    '--user-input-color': userInputColor
+  }
+)}>
+```
+
+#### `type WithXStyleProps`
+
+When you are making a reusable component that accepts external styles, `WithXStyleProps` allows you to easily type your component's props to accept external stylex styles via the `xstyle` prop.
+
+```tsx
+const buttonStyles = stylex.create({
+  base: {}
+});
+
+// Now ButtonProps no longer accepts `className` and `style` but accepts `xstyle`.
+export interface ButtonProps extends WithXStyleProps<React.ComponentProps<'button'>> {
+  // Your other props goes here
+}
+
+export default function Button({ xstyle, ...props }: ButtonProps) {
+  return <button {...stylexPropsWithClassName(styles.base, xstyle)} {...props} />;
+}
 ```
 
 ## Options

@@ -13,71 +13,106 @@ const externalModules = Object.keys(pkgJson.dependencies)
   .concat('next');
 const external = (id: string) => id.startsWith('node:') || externalModules.some((name) => id === name || id.startsWith(`${name}/`));
 
-export default defineConfig([{
-  input: 'src/index.ts',
-  output: {
-    file: 'dist/index.js',
-    format: 'commonjs'
+export default defineConfig([
+  // webpack plugin entry point
+  {
+    input: 'src/index.ts',
+    output: {
+      file: 'dist/index.js',
+      format: 'commonjs'
+    },
+    plugins: [
+      json(),
+      swc(),
+      copy({
+        targets: [
+          { src: 'src/stylex.css', dest: 'dist' },
+          { src: 'src/stylex-virtual.css', dest: 'dist' }
+        ]
+      })
+    ],
+    external
   },
-  plugins: [
-    json(),
-    swc(),
-    copy({
-      targets: [
-        { src: 'src/stylex.css', dest: 'dist' },
-        { src: 'src/stylex-virtual.css', dest: 'dist' }
-      ]
-    })
-  ],
-  external
-}, {
-  input: 'src/index.ts',
-  output: {
-    file: 'dist/index.d.ts',
-    format: 'commonjs'
+  {
+    input: 'src/index.ts',
+    output: {
+      file: 'dist/index.d.ts',
+      format: 'commonjs'
+    },
+    external,
+    plugins: [dts({
+      respectExternal: false // has to be false otherwise rollup-plugin-dts will OOM and crash. The .d.ts looks OK after disable this
+    })]
   },
-  external,
-  plugins: [dts({
-    respectExternal: false // has to be false otherwise rollup-plugin-dts will OOM and crash. The .d.ts looks OK after disable this
-  })]
-}, {
-  input: 'src/stylex-loader.ts',
-  output: {
-    file: 'dist/stylex-loader.js',
-    format: 'commonjs'
+  // webpack loader entry point
+  {
+    input: 'src/stylex-loader.ts',
+    output: {
+      file: 'dist/stylex-loader.js',
+      format: 'commonjs'
+    },
+    plugins: [swc()],
+    external
   },
-  plugins: [swc()],
-  external
-}, {
-  input: 'src/stylex-virtual-css-loader.ts',
-  output: {
-    file: 'dist/stylex-virtual-css-loader.js',
-    format: 'commonjs'
+  {
+    input: 'src/stylex-virtual-css-loader.ts',
+    output: {
+      file: 'dist/stylex-virtual-css-loader.js',
+      format: 'commonjs'
+    },
+    plugins: [swc()],
+    external
   },
-  plugins: [swc()],
-  external
-}, {
-  input: 'src/next.ts',
-  output: {
-    file: 'dist/next.js',
-    format: 'commonjs'
+  // Next.js plugin entry point
+  {
+    input: 'src/next.ts',
+    output: {
+      file: 'dist/next.js',
+      format: 'commonjs'
+    },
+    plugins: [swc()],
+    external(id: string) {
+      const isExternal = external(id);
+      if (isExternal) return true;
+      return id === './index';
+    }
   },
-  plugins: [swc()],
-  external(id: string) {
-    const isExternal = external(id);
-    if (isExternal) return true;
-    return id === './index';
+  {
+    input: 'src/next.ts',
+    output: {
+      file: 'dist/next.d.ts',
+      format: 'commonjs'
+    },
+    plugins: [dts({ respectExternal: true })],
+    external(id: string) {
+      const isExternal = external(id);
+      if (isExternal) return true;
+      return id === './index';
+    }
+  },
+  // client util entry point
+  {
+    input: 'src/utils/index.ts',
+    output: [
+      {
+        file: 'dist/utils/index.cjs',
+        format: 'commonjs'
+      },
+      {
+        file: 'dist/utils/index.mjs',
+        format: 'es'
+      }
+    ],
+    plugins: [swc()],
+    external
+  },
+  {
+    input: 'src/utils/index.ts',
+    output: {
+      file: 'dist/utils/index.d.ts',
+      format: 'commonjs'
+    },
+    plugins: [dts({ respectExternal: true })],
+    external
   }
-}, {
-  input: 'src/next.ts',
-  output: {
-    file: 'dist/next.d.ts',
-    format: 'commonjs'
-  },
-  plugins: [dts({ respectExternal: true })],
-  external(id: string) {
-    const isExternal = external(id);
-    if (isExternal) return true;
-    return id === './index';
-  }
-}]);
+]);
