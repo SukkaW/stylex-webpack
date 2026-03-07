@@ -154,8 +154,8 @@ export function withStyleX(pluginOptions?: StyleXPluginOption) {
         if (
           !config.plugins.some((plugin: unknown) => plugin instanceof MiniCssExtractPlugin)
         ) {
-        // HMR reloads the CSS file when the content changes but does not use
-        // the new file name, which means it can't contain a hash.
+          // HMR reloads the CSS file when the content changes but does not use
+          // the new file name, which means it can't contain a hash.
           const filename = ctx.dev
             ? 'static/css/[name].css'
             : 'static/css/[contenthash].css';
@@ -188,10 +188,6 @@ export function withStyleX(pluginOptions?: StyleXPluginOption) {
         config.plugins.push(new StyleXPlugin({
           nextjsMode: true,
           nextjsAppRouterMode: true,
-          stylexOption: {
-            ...pluginOptions?.stylexOption,
-            dev: ctx.dev
-          },
           async transformCss(css) {
             const { postcssWithPlugins } = await postcss();
             // add from: undefined to avoid source map warning
@@ -203,7 +199,11 @@ export function withStyleX(pluginOptions?: StyleXPluginOption) {
 
             return result.css;
           },
-          ...pluginOptions
+          ...pluginOptions,
+          stylexOption: {
+            ...pluginOptions?.stylexOption,
+            dev: ctx.dev
+          }
         }));
 
         return config;
