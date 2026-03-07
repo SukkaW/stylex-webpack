@@ -188,7 +188,6 @@ export function withStyleX(pluginOptions?: StyleXPluginOption) {
         config.plugins.push(new StyleXPlugin({
           nextjsMode: true,
           nextjsAppRouterMode: true,
-          ...pluginOptions,
           stylexOption: {
             ...pluginOptions?.stylexOption,
             dev: ctx.dev
@@ -203,7 +202,8 @@ export function withStyleX(pluginOptions?: StyleXPluginOption) {
             }
 
             return result.css;
-          }
+          },
+          ...pluginOptions
         }));
 
         return config;
