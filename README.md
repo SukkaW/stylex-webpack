@@ -177,7 +177,7 @@ export interface ButtonProps extends WithXStyleProps<React.ComponentProps<'butto
 }
 
 export default function Button({ xstyle, ...props }: ButtonProps) {
-  return <button {...stylexPropsWithClassName(styles.base, xstyle)} {...props} />;
+  return <button {...stylex.props(styles.base, xstyle)} {...props} />;
 }
 ```
 
