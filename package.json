@@ -98,14 +98,5 @@
     "@stylexjs/babel-plugin": "*",
     "@stylexjs/stylex": "*"
   },
-  "packageManager": "pnpm@10.34.5",
-  "pnpm": {
-    "overrides": {
-      "eslint>chalk": "npm:picocolors@^1.1.1"
-    },
-    "onlyBuiltDependencies": [
-      "@swc/core",
-      "oxc-resolver"
-    ]
-  }
+  "packageManager": "pnpm@10.34.5"
 }

@@ -8,6 +8,7 @@ import { stringifyRequest } from './lib/stringify-request';
 import path from 'node:path';
 
 const PLUGIN_NAME = 'stylex';
+const rTypeScriptExtension = /\.tsx?$/;
 
 export interface StyleXLoaderOptions {
   stylexImports: string[],
@@ -44,7 +45,7 @@ export default async function stylexLoader(this: WebpackLoaderContext<StyleXLoad
         sourceFileName: this.resourcePath,
         filename: this.resourcePath,
         parserOpts: {
-          plugins: /\.tsx?$/.test(this.resourcePath)
+          plugins: rTypeScriptExtension.test(this.resourcePath)
             ? ['typescript', 'jsx']
             // TODO: add flow support here
             // https://github.com/babel/babel/issues/16264

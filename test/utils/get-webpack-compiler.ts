@@ -13,6 +13,10 @@ import type { StyleXPluginOption } from '../../src';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import { nullthrow } from 'foxts/guard';
 
+const rScriptExtension = /\.[cm]?[jt]sx$/i;
+const rNodeModules = /node_modules/;
+const rCssExtension = /\.css$/i;
+
 export const externalModules = Object.keys(pkgJson.dependencies)
   .concat(Object.keys(pkgJson.peerDependencies))
   .concat(builtinModules)
@@ -63,14 +67,14 @@ export default (fixture: string, pluginOption?: StyleXPluginOption, config: webp
     module: {
       rules: [
         {
-          test: /\.[cm]?[jt]sx$/i,
-          exclude: /node_modules/,
+          test: rScriptExtension,
+          exclude: rNodeModules,
           use: [
             useSwcLoader(true)
           ]
         },
         {
-          test: /\.css$/i,
+          test: rCssExtension,
           use: [
             MiniCssExtractPlugin.loader,
             'css-loader'
