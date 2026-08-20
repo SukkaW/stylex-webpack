@@ -1,5 +1,4 @@
 import type { LoaderContext as WebpackLoaderContext } from 'webpack';
-import { transformAsync as babelTransformAsync } from '@babel/core';
 import stylexBabelPlugin from '@stylexjs/babel-plugin';
 import type { Options as StyleXOptions } from '@stylexjs/babel-plugin';
 import { nullthrow } from 'foxts/guard';
@@ -37,6 +36,8 @@ export default async function stylexLoader(this: WebpackLoaderContext<StyleXLoad
   }
 
   try {
+    const { transformAsync: babelTransformAsync } = await import('@babel/core');
+
     const { code, map, metadata } = (await babelTransformAsync(
       inputCode,
       {
@@ -51,6 +52,8 @@ export default async function stylexLoader(this: WebpackLoaderContext<StyleXLoad
             // https://github.com/babel/babel/issues/16264
             : ['jsx']
         },
+        // path enough source map for webpack and other loaders
+        sourceMaps: 'both',
         plugins: [
           stylexBabelPlugin.withOptions(stylexOption)
         ]
@@ -66,6 +69,7 @@ export default async function stylexLoader(this: WebpackLoaderContext<StyleXLoad
       || metadata.stylex == null
     ) {
       logger?.debug(`No stylex styles generated from ${this.resourcePath}`);
+      // @ts-expect-error -- babel 8 source map types conflict with webpack 5 source map types
       return callback(null, code ?? undefined, map ?? undefined);
     }
 
@@ -89,7 +93,7 @@ export default async function stylexLoader(this: WebpackLoaderContext<StyleXLoad
       `${VIRTUAL_STYLEX_CSS_DUMMY_IMPORT_PATH}?${urlParams.toString()}`
     );
     const postfix = `\nimport ${virtualCssRequest};\n${LOADER_TRANSFORMED_FLAG}`;
-
+    // @ts-expect-error -- babel 8 source map types conflict with webpack 5 source map types
     return callback(null, code + postfix, map ?? undefined);
   } catch (error) {
     return callback(error as Error);
